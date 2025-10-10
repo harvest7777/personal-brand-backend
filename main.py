@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, START, END
 from langchain.schema import HumanMessage, AIMessage
 from github import build_github_graph
-from models import *
+from langgraph_models import *
 from pprint import pprint
 
 
@@ -66,7 +66,9 @@ for node in ["linkedin_agent", "github_agent", "resume_agent", "fallback_agent"]
 
 graph = graph.compile()
 
+
 # --- Test ---
-continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
-result = graph.invoke(continue_with_github)
-pprint(result, indent=2)
+if __name__ == "__main__":
+    continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
+    result = graph.invoke(continue_with_github)
+    pprint(result, indent=2)
