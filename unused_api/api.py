@@ -1,8 +1,8 @@
 from langchain.schema import HumanMessage, AIMessage
-from langgraph_models import *
-from api_models import *
+from langgraph_logic.models import *
+from database.agent_db_models import *
 from pprint import pprint
-from main import graph
+from langgraph_logic.main import graph
 from fastapi import FastAPI
 from utils.data_serialization_helpers import *
 

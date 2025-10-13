@@ -1,8 +1,7 @@
-from langgraph_models import *
+from langgraph_logic.models import *
 from langchain.schema import HumanMessage, AIMessage
 from langchain_core.messages import AnyMessage
-from api_models import *
-import json
+from database.agent_db_models import *
 
 def jsonAgentStateToLangGraph(json_data) -> AgentState:
     current_agent: str = json_data.current_agent

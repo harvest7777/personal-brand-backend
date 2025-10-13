@@ -1,13 +1,13 @@
 from datetime import datetime
 from pprint import pformat
-from langgraph_models import * 
+from langgraph_logic.models import * 
 from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
-from chat_helpers import *
+from utils.chat_helpers import *
 from uuid import uuid4
 import os
 from dotenv import load_dotenv
-from github import build_github_graph
+from langgraph_logic.github import build_github_graph
 from uagents import Context, Protocol, Agent
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,

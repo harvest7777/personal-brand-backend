@@ -1,4 +1,4 @@
-from langgraph_models import *
+from langgraph_logic.models import *
 import requests
 
 BASE = 'http://localhost:8000/'
