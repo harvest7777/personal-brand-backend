@@ -37,7 +37,11 @@ def resume_agent(state: AgentState):
     return {"messages": [AIMessage(content="Ready to upload your resume.")]}
 
 def fallback_agent(state: AgentState):
-    return {"messages": [AIMessage(content="Sorry, I didn’t understand. Can you clarify?")]}
+    default_message = """
+    [Unclear Intent]
+    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.
+    """
+    return {"messages": [AIMessage(content=default_message)]}
 
 # --- Build Graph ---
 graph = StateGraph(AgentState)
@@ -70,7 +74,7 @@ graph = graph.compile()
 
 # --- Test ---
 if __name__ == "__main__":
-    continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
-    new_chat: AgentState = {"current_step":0,"current_agent":"","messages": [HumanMessage(content="github")]}
+    # continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
+    new_chat: AgentState = {"current_step":0,"current_agent":"","messages": [HumanMessage(content="hi")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)
