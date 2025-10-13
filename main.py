@@ -5,9 +5,10 @@ from langgraph_models import *
 from pprint import pprint
 
 
+VALID_AGENTS = ["linkedin", "github", "resume"]
 # --- Intent Router ---
 def intent_router(state: AgentState):
-    if "current_agent" in state and state["current_agent"] is not None:
+    if "current_agent" in state and state["current_agent"] in VALID_AGENTS:
         return {"next": state["current_agent"]}
 
     user_msg_obj = state["messages"][-1]
@@ -70,5 +71,6 @@ graph = graph.compile()
 # --- Test ---
 if __name__ == "__main__":
     continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
-    result = graph.invoke(continue_with_github)
+    new_chat: AgentState = {"current_step":0,"current_agent":"","messages": [HumanMessage(content="github")]}
+    result = graph.invoke(new_chat)
     pprint(result, indent=2)
