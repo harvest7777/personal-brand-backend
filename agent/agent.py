@@ -1,4 +1,5 @@
 from datetime import datetime
+from langgraph_logic.github import build_github_graph
 from pprint import pformat
 from langgraph_logic.models import * 
 from langchain.schema import HumanMessage, AIMessage
@@ -7,7 +8,6 @@ from utils.chat_helpers import *
 from uuid import uuid4
 import os
 from dotenv import load_dotenv
-from langgraph_logic.github import build_github_graph
 from uagents import Context, Protocol, Agent
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
@@ -37,23 +37,20 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
         ChatAcknowledgement(timestamp=datetime.now(), acknowledged_msg_id=msg.msg_id),
     )
 
+    chat_id = get_chat_id_from_message(msg)
+    if chat_id is None:
+        ctx.logger.error("No chat id found in message")
+        return
+
+    chat_data = ctx.storage.get(chat_id) 
+    ctx.logger.info(f"Chat data: {pformat(chat_data)}")
+
     if is_asione_message(msg):
-        response = "This was a ASI:One message"
-        ctx.logger.info("Trying to start langgraph flow")
-        continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
-
-        current_count = ctx.storage.get("count") or 0
-        ctx.storage.set("count", current_count + 1)
-
-        ctx.logger.info(get_chat_id_from_message(msg))
-        # result = graph.invoke(continue_with_github)
-        # hi = pformat(msg)
-        # ctx.logger.info(hi)
         await ctx.send(sender, ChatMessage(
             timestamp=datetime.now(),
             msg_id=uuid4(),
             content=[
-                TextContent(type="text", text=str(current_count)),
+                TextContent(type="text", text="Hello"),
 
                 # This will end the chat session after one interaction
                 # EndSessionContent(type="end-session") 

@@ -1,6 +1,6 @@
-from models import * 
 from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
+from langgraph_logic.models import *
 
 VALID_STEPS = [1,2,3]
 def github_agent(state: AgentState):
