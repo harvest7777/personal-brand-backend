@@ -44,37 +44,40 @@ def fallback_agent(state: AgentState):
     return {"messages": [AIMessage(content=default_message)]}
 
 # --- Build Graph ---
-graph = StateGraph(AgentState)
+def build_main_graph():
+    graph = StateGraph(AgentState)
 
-github_agent = build_github_graph()
-graph.add_node(intent_router)
-graph.add_node(linkedin_agent)
-graph.add_node("github_agent", github_agent)
-graph.add_node(resume_agent)
-graph.add_node(fallback_agent)
+    github_agent = build_github_graph()
+    graph.add_node(intent_router)
+    graph.add_node(linkedin_agent)
+    graph.add_node("github_agent", github_agent)
+    graph.add_node(resume_agent)
+    graph.add_node(fallback_agent)
 
-graph.add_edge(START, "intent_router")
+    graph.add_edge(START, "intent_router")
 
-graph.add_conditional_edges(
-    "intent_router",
-    lambda state: state["next"],
-    {
-        "linkedin_agent": "linkedin_agent",
-        "github_agent": "github_agent",
-        "resume_agent": "resume_agent",
-        "fallback_agent": "fallback_agent",
-    },
-)
+    graph.add_conditional_edges(
+        "intent_router",
+        lambda state: state["next"],
+        {
+            "linkedin_agent": "linkedin_agent",
+            "github_agent": "github_agent",
+            "resume_agent": "resume_agent",
+            "fallback_agent": "fallback_agent",
+        },
+    )
 
-for node in ["linkedin_agent", "github_agent", "resume_agent", "fallback_agent"]:
-    graph.add_edge(node, END)
+    for node in ["linkedin_agent", "github_agent", "resume_agent", "fallback_agent"]:
+        graph.add_edge(node, END)
 
-graph = graph.compile()
+    graph = graph.compile()
+    return graph
 
 
 # --- Test ---
 if __name__ == "__main__":
     # continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
+    graph = build_main_graph()
     new_chat: AgentState = {"current_step":0,"current_agent":"","messages": [HumanMessage(content="hi")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)

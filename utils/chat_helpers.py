@@ -1,11 +1,13 @@
 from uagents_core.contrib.protocols.chat import ChatMessage, MetadataContent, TextContent
+from langchain.schema import HumanMessage
+from langgraph_logic.models import AgentState
 
-def is_asione_message(msg: ChatMessage):
+def is_sent_by_asione(msg: ChatMessage) -> bool:
     """Determines if a ChatMessage was sent by ASI:One"""
     return isinstance(msg.content[-1], MetadataContent)
 
-def is_user_message(msg: ChatMessage):
-    """Determines if a ChatMessage was sent by a user through Chat Protocol"""
+def is_sent_by_agentverse(msg: ChatMessage) -> bool:
+    """Determines if a ChatMessage was sent by a user through AgentVerse"""
     return isinstance(msg.content[-1], TextContent)
 
 def get_chat_id_from_message(msg: ChatMessage):
@@ -17,3 +19,16 @@ def get_chat_id_from_message(msg: ChatMessage):
                 chat_id = content.metadata["x-session-id"]
                 break
     return chat_id
+
+def get_human_input_from_message(msg: ChatMessage):
+    """Extracts the user message text from a ChatMessage if it was sent by a user"""
+    user_text = None
+    for content in msg.content:
+        if isinstance(content, TextContent):
+            user_text = content.text
+            break
+    return user_text
+
+def initialize_agent_state(initial_human_input: str = "") -> AgentState:
+    new_chat: AgentState = {"current_step":1,"current_agent":"","messages": [HumanMessage(content=initial_human_input)]}
+    return new_chat

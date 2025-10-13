@@ -85,7 +85,7 @@ def build_github_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_github_graph()
-    new_chat: AgentState = {"current_step":0,"current_agent":"","messages": [HumanMessage(content="github")]}
+    new_chat: AgentState = {"current_step":1,"current_agent":"","messages": [HumanMessage(content="github")]}
     continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)

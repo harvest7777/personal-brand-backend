@@ -1,5 +1,5 @@
 from datetime import datetime
-from langgraph_logic.github import build_github_graph
+from langgraph_logic.main import build_main_graph
 from pprint import pformat
 from langgraph_logic.models import * 
 from langchain.schema import HumanMessage, AIMessage
@@ -20,7 +20,7 @@ from uagents_core.contrib.protocols.chat import (
 )
 load_dotenv()
 
-graph = build_github_graph()
+graph = build_main_graph()
 
 agent = Agent(
     name="Personal Brand Orchestrator",
@@ -38,14 +38,31 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
     )
 
     chat_id = get_chat_id_from_message(msg)
+    human_input = get_human_input_from_message(msg)
+
+    # This should never execute. If it does, something is very wrong lol
     if chat_id is None:
         ctx.logger.error("No chat id found in message")
         return
 
-    chat_data = ctx.storage.get(chat_id) 
-    ctx.logger.info(f"Chat data: {pformat(chat_data)}")
+    # This should never execute. If it does, something is very wrong lol
+    if human_input is None:
+        ctx.logger.error("No human input found in message")
+        return
 
-    if is_asione_message(msg):
+    current_state: AgentState = initialize_agent_state(human_input)
+    result = graph.invoke(current_state)
+
+    ppresult = pformat(result, indent=2)
+    ctx.logger.info(f"Graph result: {ppresult}")
+
+    chat_data = ctx.storage.get(chat_id) 
+    # current_state = initialize_agent_state(msg.content)
+
+
+    ctx.logger.info(f"Chat data: {human_input}")
+
+    if is_sent_by_asione(msg):
         await ctx.send(sender, ChatMessage(
             timestamp=datetime.now(),
             msg_id=uuid4(),
