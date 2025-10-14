@@ -28,7 +28,3 @@ def get_human_input_from_message(msg: ChatMessage):
             user_text = content.text
             break
     return user_text
-
-def initialize_agent_state(initial_human_input: str = "") -> AgentState:
-    new_chat: AgentState = {"current_step":1,"current_agent":"","messages": [HumanMessage(content=initial_human_input)]}
-    return new_chat

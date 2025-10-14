@@ -5,6 +5,8 @@ from langgraph_logic.models import *
 from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from utils.chat_helpers import *
+from utils.db_helpers import *
+from utils.state_helpers import *
 from uuid import uuid4
 import os
 from dotenv import load_dotenv
@@ -37,6 +39,7 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
         ChatAcknowledgement(timestamp=datetime.now(), acknowledged_msg_id=msg.msg_id),
     )
 
+    # region Simple parsing input and getting chat metadata
     chat_id = get_chat_id_from_message(msg)
     human_input = get_human_input_from_message(msg)
 
@@ -49,25 +52,26 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
     if human_input is None:
         ctx.logger.error("No human input found in message")
         return
+    # endregion
 
-    current_state: AgentState = initialize_agent_state(human_input)
-    result = graph.invoke(current_state)
+    # region Initializing the langgraph state and invoking the graph
+    current_state: AgentState = get_most_recent_state_from_agent_db(chat_id, ctx)
+    append_message_to_state(current_state, human_input)
 
-    ppresult = pformat(result, indent=2)
-    ctx.logger.info(f"Graph result: {ppresult}")
-
-    chat_data = ctx.storage.get(chat_id) 
-    # current_state = initialize_agent_state(msg.content)
-
+    result = graph.invoke(current_state) # This will return a dict, NOT a state object
+    # endregion
 
     ctx.logger.info(f"Chat data: {human_input}")
 
     if is_sent_by_asione(msg):
+        ai_response = result["messages"][-1].content
+
+         # Save the updated state to the database
         await ctx.send(sender, ChatMessage(
             timestamp=datetime.now(),
             msg_id=uuid4(),
             content=[
-                TextContent(type="text", text="Hello"),
+                TextContent(type="text", text=ai_response),
 
                 # This will end the chat session after one interaction
                 # EndSessionContent(type="end-session") 
