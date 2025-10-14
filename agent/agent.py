@@ -2,6 +2,7 @@ from datetime import datetime
 from langgraph_logic.main import build_main_graph
 from pprint import pformat
 from langgraph_logic.models import * 
+from utils.data_serialization_helpers import *
 from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from utils.chat_helpers import *
@@ -56,12 +57,17 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     # region Initializing the langgraph state and invoking the graph
     current_state: AgentState = get_most_recent_state_from_agent_db(chat_id, ctx)
+    ctx.logger.info(f"Current state:\n{pformat(current_state)}")
     append_message_to_state(current_state, human_input)
-
     result = graph.invoke(current_state) # This will return a dict, NOT a state object
-    # endregion
+    json_result = langgraph_state_to_json(result)
 
-    ctx.logger.info(f"Chat data: {human_input}")
+    ctx.logger.info(f"Json res:\n{pformat(json_result)}")
+    # result_json = langgraph_state_to_json(result)
+
+    ctx.storage.set(chat_id, json_result) # Save the new state to the DB
+
+    # endregion
 
     if is_sent_by_asione(msg):
         ai_response = result["messages"][-1].content

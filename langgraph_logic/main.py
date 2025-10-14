@@ -41,7 +41,11 @@ def fallback_agent(state: AgentState):
     [Unclear Intent]
     I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.
     """
-    return {"messages": [AIMessage(content=default_message)]}
+    return {
+        "messages": [AIMessage(content=default_message)],
+        "current_agent": "",
+        "current_step": 1
+    }
 
 # --- Build Graph ---
 def build_main_graph():

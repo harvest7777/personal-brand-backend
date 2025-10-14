@@ -1,6 +1,8 @@
 from uagents_core.contrib.protocols.chat import ChatMessage, MetadataContent, TextContent
+from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from langchain.schema import HumanMessage
 from langgraph_logic.models import AgentState
+from utils.data_serialization_helpers import *
 
 
 def get_most_recent_state_from_agent_db(chat_id: str, ctx) -> AgentState:
@@ -9,4 +11,4 @@ def get_most_recent_state_from_agent_db(chat_id: str, ctx) -> AgentState:
     chat_data = ctx.storage.get(chat_id)
     if chat_data is None:
         return initialize_agent_state()
-    return chat_data
+    return json_agent_state_to_langgraph(chat_data)

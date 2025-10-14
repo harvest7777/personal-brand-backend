@@ -15,7 +15,7 @@ async def root():
 
 @app.post("/chat")
 async def handeChat(agent_state_body: JsonAgentState):
-    langgraph_state = jsonAgentStateToLangGraph(agent_state_body)
+    langgraph_state = json_agent_state_to_langgraph(agent_state_body)
     result = graph.invoke(langgraph_state)
     print(result)
 
