@@ -55,20 +55,17 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
         return
     # endregion
 
-    # region Initializing the langgraph state and invoking the graph
+    # region Initializing the langgraph state, invoking the graph, then updating the state
     current_state: AgentState = get_most_recent_state_from_agent_db(chat_id, ctx)
-    ctx.logger.info(f"Current state:\n{pformat(current_state)}")
     append_message_to_state(current_state, human_input)
-    result = graph.invoke(current_state) # This will return a dict, NOT a state object
-    json_result = langgraph_state_to_json(result)
 
-    ctx.logger.info(f"Json res:\n{pformat(json_result)}")
-    # result_json = langgraph_state_to_json(result)
+    result = graph.invoke(current_state) # This will return a dict, NOT a state object
+    json_result = langgraph_state_to_json(result) # Has to be json to store in agent db
 
     ctx.storage.set(chat_id, json_result) # Save the new state to the DB
-
     # endregion
 
+    # region Sending the response back to the user through ASI:One
     if is_sent_by_asione(msg):
         ai_response = result["messages"][-1].content
 
@@ -83,6 +80,7 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
                 # EndSessionContent(type="end-session") 
             ]
         ))
+    # endregion
 
 
 @protocol.on_message(ChatAcknowledgement)
