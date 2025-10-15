@@ -125,5 +125,197 @@
                 "content": "Executing step 1"
             }
         ]
+    },
+    "07a1a5f8-0f6d-4d08-a8b1-50f8b3acfddf": {
+        "current_agent": "",
+        "current_step": 2,
+        "messages": [
+            {
+                "role": "human",
+                "content": " hello"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " github"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 1"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 1"
+            },
+            {
+                "role": "human",
+                "content": " hello"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " github again"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 1"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 1"
+            }
+        ]
+    },
+    "ffbd69f1-fe26-48ad-8f43-626ec8e98fa3": {
+        "current_agent": "",
+        "current_step": 2,
+        "messages": [
+            {
+                "role": "human",
+                "content": " github sdkfjs"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 1"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 1"
+            }
+        ]
+    },
+    "fb090276-65c1-4b02-be98-c225ef0d019d": {
+        "current_agent": "",
+        "current_step": 2,
+        "messages": [
+            {
+                "role": "human",
+                "content": " github"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 1"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 1"
+            }
+        ]
+    },
+    "065cec4e-e884-47eb-90c9-993399a0abe2": {
+        "current_agent": "",
+        "current_step": 2,
+        "messages": [
+            {
+                "role": "human",
+                "content": " hello"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " github"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 1"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 1"
+            }
+        ]
+    },
+    "d2ab840c-07b2-49cf-80d2-f9723d943d70": {
+        "current_agent": "",
+        "current_step": 2,
+        "messages": [
+            {
+                "role": "human",
+                "content": " hello"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " github do something"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 1"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 1"
+            },
+            {
+                "role": "human",
+                "content": " github contiuatskfj"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 2"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 2"
+            },
+            {
+                "role": "human",
+                "content": " some gibberish to reset steps"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " github again"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 1"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 1"
+            }
+        ]
+    },
+    "e6313ce0-0626-4e31-b0c2-0080a42d3ca9": {
+        "current_agent": "",
+        "current_step": 2,
+        "messages": [
+            {
+                "role": "human",
+                "content": " helo"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " github"
+            },
+            {
+                "role": "ai",
+                "content": "Resuming at step 1"
+            },
+            {
+                "role": "ai",
+                "content": "Executing step 1"
+            }
+        ]
     }
 }
