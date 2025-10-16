@@ -4,6 +4,6 @@ from langchain_core.messages import AnyMessage
 from typing import List
 class AgentState(MessagesState):
     current_agent: str
-    current_step: int
+    current_step: str 
 
 
