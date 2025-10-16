@@ -4,8 +4,9 @@ from langchain_core.messages import AnyMessage
 from database.agent_db_models import *
 
 def json_agent_state_to_langgraph(json_data) -> AgentState:
+    agent_id: str = json_data["agent_id"]
     current_agent: str = json_data["current_agent"]
-    current_step: int = json_data["current_step"]
+    current_step: str = json_data["current_step"]
     messages: List[AnyMessage] = []
 
     for msg in json_data["messages"]:
@@ -18,6 +19,7 @@ def json_agent_state_to_langgraph(json_data) -> AgentState:
                 raise ValueError(f"Unknown role: {msg['role']}")
 
     langgraph_agent_state = AgentState(
+        agent_id=agent_id,
         current_agent=current_agent,
         current_step=current_step,
         messages=messages
@@ -26,6 +28,7 @@ def json_agent_state_to_langgraph(json_data) -> AgentState:
 
 def langgraph_state_to_json(agent_state) -> dict:
     # Extract basic fields
+    agent_id = agent_state["agent_id"]
     current_agent = agent_state["current_agent"]
     current_step = agent_state["current_step"]
 
@@ -46,6 +49,7 @@ def langgraph_state_to_json(agent_state) -> dict:
 
     # Build the JSON-safe dict
     return {
+        "agent_id": agent_id,
         "current_agent": current_agent,
         "current_step": current_step,
         "messages": messages_json

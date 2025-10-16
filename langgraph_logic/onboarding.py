@@ -2,7 +2,7 @@ from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph_logic.models import *
 from enum import Enum
-from langgraph_logic.onboarding_helpers import call_model
+from langgraph_logic.onboarding_helpers import *
 
 """
 | Field                          | Example                                                                                           |
@@ -42,14 +42,17 @@ def ask_name(state: AgentState):
 def verify_name(state: AgentState):
     """Validates the user's full name before proceeding to the next step"""
     # Will replace with some llm helper here
-    is_valid_name = True
+    user_response: str = state["messages"][-1].content if state["messages"] else "" # type: ignore
 
-    if not is_valid_name:
+    valid_name = is_valid_name(user_response)
+
+    if not valid_name:
         return {
             "current_step": Step.VERIFY_NAME.value,
             "messages": state["messages"] + [AIMessage(content="That doesn't seem like a valid name. Please try again.")],
         }
 
+    extracted_name = extract_name(user_response)
     # Done with the onboarding flow 
     return {
         "current_step": "",
@@ -98,6 +101,6 @@ def build_onboarding_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_onboarding_graph()
-    new_chat: AgentState = {"current_step": "","current_agent":"","messages": [HumanMessage(content="github")]}
+    new_chat: AgentState = {"agent_id": "user123", "current_step": "", "current_agent": "", "messages": [HumanMessage(content="github")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)

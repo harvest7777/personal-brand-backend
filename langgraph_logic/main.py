@@ -82,6 +82,6 @@ def build_main_graph():
 if __name__ == "__main__":
     # continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
     graph = build_main_graph()
-    new_chat: AgentState = {"current_step":0,"current_agent":"","messages": [HumanMessage(content="hi")]}
+    new_chat: AgentState = {"agent_id":"","current_step":"","current_agent":"","messages": [HumanMessage(content="hi")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)
