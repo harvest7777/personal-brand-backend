@@ -2,6 +2,7 @@ from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph_logic.models import *
 from enum import Enum
+from langgraph_logic.onboarding_helpers import call_model
 
 """
 | Field                          | Example                                                                                           |
@@ -19,15 +20,12 @@ class Step(Enum):
 
 def onboarding_agent(state: AgentState):
     """Initial entry point for the Onboarding Agent, it will determine the next step to display to the user"""
-    current_step = state.get("current_step", "")
+    current_step = state.get("current_step")
     is_valid_step = current_step in [s.value for s in Step]
+    if not current_step or not is_valid_step:
+        # We could check what information we already have about the user at this point then route them properly
+        current_step = Step.ASK_NAME.value
 
-    if not is_valid_step:
-        return {
-            "current_step": "invalid_step",
-            "messages": state["messages"]
-        }
-    
     return {
         "current_step": current_step,
         "messages": state["messages"]
@@ -43,9 +41,19 @@ def ask_name(state: AgentState):
 
 def verify_name(state: AgentState):
     """Validates the user's full name before proceeding to the next step"""
-    next_step = Step.VERIFY_NAME.value
+    # Will replace with some llm helper here
+    is_valid_name = True
+
+    if not is_valid_name:
+        return {
+            "current_step": Step.VERIFY_NAME.value,
+            "messages": state["messages"] + [AIMessage(content="That doesn't seem like a valid name. Please try again.")],
+        }
+
+    # Done with the onboarding flow 
     return {
-        "current_step": next_step,
+        "current_step": "",
+        "current_agent": "",
         "messages": state["messages"] + [AIMessage(content="Thanks! Your name has been recorded.")],
     }
 
@@ -90,7 +98,6 @@ def build_onboarding_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_onboarding_graph()
-    graph.update_state
-    new_chat: AgentState = {"current_step": "ask_name","current_agent":"","messages": [HumanMessage(content="github")]}
+    new_chat: AgentState = {"current_step": "","current_agent":"","messages": [HumanMessage(content="github")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)
