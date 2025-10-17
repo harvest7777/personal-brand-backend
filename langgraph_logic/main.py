@@ -1,12 +1,12 @@
 from langgraph.graph import StateGraph, START, END
 from langchain.schema import HumanMessage, AIMessage
-from langgraph_logic import onboarding
 from langgraph_logic.models import *
 from langgraph_logic.github import build_github_graph
 from pprint import pprint
 from langgraph_logic.onboarding import build_onboarding_graph
 from langgraph_logic.router_helpers import *
 from langgraph_logic.agents import *
+from utils.data_serialization_helpers import *
 
 # --- Intent Router ---
 def intent_router(state: AgentState):
@@ -45,10 +45,11 @@ def build_main_graph():
     github_agent = build_github_graph()
     onboarding_agent = build_onboarding_graph()
 
+    graph.add_node(Agent.GITHUB.value, github_agent)
+    graph.add_node(Agent.ONBOARDING.value, onboarding_agent)
+
     graph.add_node(intent_router)
     graph.add_node(linkedin_agent)
-    graph.add_node("github_agent", github_agent)
-    graph.add_node("onboarding_agent", onboarding_agent)
     graph.add_node(resume_agent)
     graph.add_node(fallback_agent)
 
@@ -58,15 +59,15 @@ def build_main_graph():
         "intent_router",
         lambda state: state["current_agent"],
         {
-            Agent.LINKEDIN.value: "linkedin_agent",
-            Agent.ONBOARDING.value: "onboarding_agent",
-            Agent.GITHUB.value: "github_agent",
-            Agent.RESUME.value: "resume_agent",
-            Agent.FALLBACK.value: "fallback_agent",
+            Agent.LINKEDIN.value: Agent.LINKEDIN.value,
+            Agent.ONBOARDING.value: Agent.ONBOARDING.value,
+            Agent.GITHUB.value: Agent.GITHUB.value,
+            Agent.RESUME.value: Agent.RESUME.value,
+            Agent.FALLBACK.value: Agent.FALLBACK.value,
         },
     )
 
-    for node in ["linkedin_agent", "onboarding_agent", "github_agent", "resume_agent", "fallback_agent"]:
+    for node in [agent.value for agent in Agent]:
         graph.add_edge(node, END)
 
     graph = graph.compile()
@@ -75,8 +76,14 @@ def build_main_graph():
 
 # --- Test ---
 if __name__ == "__main__":
-    # continue_with_github: AgentState = {"current_step":1,"current_agent":"github_agent","messages": [HumanMessage(content="Post to github for me."), AIMessage(content="Waiting for confirm.")]}
     graph = build_main_graph()
-    new_chat: AgentState = {"agent_id":"","current_step":"","current_agent":"","messages": [HumanMessage(content="hi")]}
+
+    new_chat: AgentState = {"agent_id":"user1234234","current_step":"","current_agent":"","messages": [HumanMessage(content="hi")]}
     result = graph.invoke(new_chat)
+
+    result["messages"].append(HumanMessage(content="my name is ryan "))
+    json_result = langgraph_state_to_json(result) 
+    continued_chat: AgentState = json_agent_state_to_langgraph(json_result) 
+
+    result = graph.invoke(continued_chat)
     pprint(result, indent=2)
