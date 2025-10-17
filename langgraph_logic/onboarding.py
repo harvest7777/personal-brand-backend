@@ -4,16 +4,6 @@ from langgraph_logic.models import *
 from enum import Enum
 from langgraph_logic.onboarding_helpers import *
 
-"""
-| Field                          | Example                                                                                           |
-| ------------------------------ | ------------------------------------------------------------------------------------------------- |
-| Full name                      | “Alex Morgan”                                                                                     |
-| Tagline / One-liner            | “AI engineer building intelligent automation systems”                                             |
-| Bio                            | 2–3 sentence summary (“I’m a software developer interested in agent frameworks and LLM tooling.”) |
-| Location / timezone (optional) | “Berlin, Germany”                                                                                 |
-
-"""
-
 class Step(Enum):
     ASK_NAME = "ask_name"
     VERIFY_NAME = "verify_name"
@@ -33,7 +23,7 @@ def onboarding_agent(state: AgentState):
     }
 
 def ask_name(state: AgentState):
-    """Asks the user for their full name"""
+    """Asks the user for their full name and moves on to the next step"""
     next_step = Step.VERIFY_NAME.value
     return {
         "current_step": next_step,
@@ -53,7 +43,9 @@ def verify_name(state: AgentState):
             "messages": state["messages"] + [AIMessage(content="That doesn't seem like a valid name. Please try again.")],
         }
 
+    # TODO save this into supabase
     extracted_name = extract_name(user_response)
+
     # Done with the onboarding flow 
     return {
         "current_step": "",

@@ -1,3 +1,4 @@
+from calendar import c
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START
 from langchain.schema import AIMessage, HumanMessage
@@ -38,19 +39,22 @@ def is_valid_name(user_input: str) -> bool:
     return answer == "yes"
 
 
-def extract_name(name):
+def extract_name(user_input: str):
     """Extract the full name from the user's input"""
     response = llm.invoke([
         HumanMessage(content=f"""
         Extract the full name from the following text.
         Respond with only the full name and nothing else.
 
-        Text: "{name}"
+        Text: "{user_input}"
         """)
     ])
 
     extracted_name = response.content.strip()  # type: ignore
     return extracted_name
+
+def parse_resume(resume_contents: str):
+
 
 if __name__ == "__main__":
     print(is_valid_name("my name is john doe"))
