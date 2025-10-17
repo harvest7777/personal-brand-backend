@@ -3,32 +3,36 @@ from langchain.schema import HumanMessage, AIMessage
 from langgraph_logic.models import *
 from langgraph_logic.github import build_github_graph
 from pprint import pprint
+from enum import Enum
 
+class Agent(Enum):
+    ONBOARDING = "onboarding_agent"
+    FALLBACK = "fallback_agent"
+    LINKEDIN = "linkedin_agent"
+    GITHUB = "github_agent"
+    RESUME = "resume_agent"
 
-VALID_AGENTS = ["linkedin", "github", "resume"]
+# Descriptions for each agent for the intent router to use
+AGENT_DESCRIPTIONS = {
+    Agent.ONBOARDING: "Handles onboarding new users and collecting initial information.",
+    Agent.FALLBACK: "Handles unclear, ambiguous, or unsupported user intents.",
+    Agent.LINKEDIN: "Assists with managing or connecting your LinkedIn profile.",
+    Agent.GITHUB: "Assists with managing or connecting your GitHub profile.",
+    Agent.RESUME: "Helps with uploading, reviewing, or managing your resume.",
+}
+
 # --- Intent Router ---
 def intent_router(state: AgentState):
-    if "current_agent" in state and state["current_agent"] in VALID_AGENTS:
+    # Continuing where we left off, user is already working with an agent and is in some step
+    if "current_agent" in state and state["current_agent"] in [agent.value for agent in Agent]:
         return {"next": state["current_agent"]}
 
-    user_msg_obj = state["messages"][-1]
-    user_msg_content = str(getattr(user_msg_obj, "content", user_msg_obj))
-    user_msg: str = user_msg_content.lower()
-
-    if "linkedin" in user_msg:
-        next_node = "linkedin_agent"
-    elif "github" in user_msg:
-        next_node = "github_agent"
-    elif "resume" in user_msg or "upload" in user_msg:
-        next_node = "resume_agent"
-    else:
-        next_node = "fallback_agent"
-
+    # New conversation or the user has exited one of the other agents 
+    next_node = intent_router(state)
     return {"next": next_node}
 
+
 # --- Mock Agents ---
-
-
 # Each agent has steps?
 def linkedin_agent(state: AgentState):
     return {"messages": [AIMessage(content="Opening LinkedIn profile...")]}
