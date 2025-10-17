@@ -1,6 +1,7 @@
 from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from supabase_auth import UserResponse
+from chroma.chroma_helpers import insert_resume_fact
 from langgraph_logic.models import *
 from enum import Enum
 from langgraph_logic.onboarding_helpers import *
@@ -79,6 +80,7 @@ def store_facts_from_resume(state: AgentState):
 
     valid_resume = is_valid_resume(user_response)
 
+    # Make the user input their resume again fi it was invalid
     if not valid_resume:
         return {
             "current_step": Step.STORE_FACTS_FROM_RESUME.value,
@@ -86,7 +88,10 @@ def store_facts_from_resume(state: AgentState):
         }
     facts_from_resume = parse_resume(user_response)
 
-    # TODO store the resume facts in chroma
+    # Store all the facts in chroma
+    for fact in facts_from_resume:
+        insert_resume_fact(state["agent_id"], fact)
+
     return {
         "current_agent":"",
         "current_step": "",
