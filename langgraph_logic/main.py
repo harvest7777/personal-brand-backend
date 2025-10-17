@@ -12,12 +12,11 @@ from langgraph_logic.agents import *
 def intent_router(state: AgentState):
     # Continuing where we left off, user is already working with an agent and is in some step
     if "current_agent" in state and state["current_agent"] in [agent.value for agent in Agent]:
-        return {"next": state["current_agent"]}
+        return {"current_agent": state["current_agent"]}
 
     # New conversation or the user has exited one of the other agents 
-    next_node = classify_intent(state)
-    print(next_node.value)
-    return {"next": next_node.value}
+    classified_agent = classify_intent(state)
+    return {"current_agent": classified_agent.value}
 
 
 # --- Mock Agents ---
@@ -57,13 +56,13 @@ def build_main_graph():
 
     graph.add_conditional_edges(
         "intent_router",
-        lambda state: state["next"],
+        lambda state: state["current_agent"],
         {
-            "linkedin_agent": "linkedin_agent",
-            "onboarding_agent": "onboarding_agent",
-            "github_agent": "github_agent",
-            "resume_agent": "resume_agent",
-            "fallback_agent": "fallback_agent",
+            Agent.LINKEDIN.value: "linkedin_agent",
+            Agent.ONBOARDING.value: "onboarding_agent",
+            Agent.GITHUB.value: "github_agent",
+            Agent.RESUME.value: "resume_agent",
+            Agent.FALLBACK.value: "fallback_agent",
         },
     )
 
