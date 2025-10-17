@@ -1,3 +1,4 @@
+from ast import List
 from calendar import c
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START
@@ -53,7 +54,7 @@ def extract_name(user_input: str):
     extracted_name = response.content.strip()  # type: ignore
     return extracted_name
 
-def parse_resume(resume_contents: str):
+def parse_resume(resume_contents: str) -> list[str]:
     """
     Given a user's resume contents as raw text, return a prompt for an LLM that instructs it to parse 
     the resume into a flat list of factual statements ("facts") about the user. The LLM should not
@@ -82,7 +83,7 @@ def parse_resume(resume_contents: str):
     \"\"\"
     """
     response = llm.invoke([HumanMessage(content=prompt)])
-    return response.content.strip() # type: ignore
+    return [fact.strip() for fact in response.content.strip().split("\n") if fact.strip() != ""] # type: ignore
 
 
 if __name__ == "__main__":
@@ -135,5 +136,5 @@ if __name__ == "__main__":
     Algorithms curriculum
     • Utilized HTML canvas with JavaScript and CSS to create a Binary Tree traversal game
     """
-    facts = parse_resume(resume).split("\n")
+    facts = parse_resume(resume)
     print(facts)

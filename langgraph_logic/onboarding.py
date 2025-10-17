@@ -1,5 +1,6 @@
 from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
+from supabase_auth import UserResponse
 from langgraph_logic.models import *
 from enum import Enum
 from langgraph_logic.onboarding_helpers import *
@@ -7,6 +8,9 @@ from langgraph_logic.onboarding_helpers import *
 class Step(Enum):
     ASK_NAME = "ask_name"
     VERIFY_NAME = "verify_name"
+    ASK_RESUME = "ask_resume"
+    INVALID_STEP = "invalid_step"
+    STORE_FACTS_FROM_RESUME = "store_facts_from_resume"
 
 def onboarding_agent(state: AgentState):
     """Initial entry point for the Onboarding Agent, it will determine the next step to display to the user"""
@@ -48,9 +52,8 @@ def verify_name(state: AgentState):
 
     # Done with the onboarding flow 
     return {
-        "current_step": "",
-        "current_agent": "",
-        "messages": state["messages"] + [AIMessage(content="Thanks! Your name has been recorded.")],
+        "current_step": Step.ASK_RESUME.value,
+        "messages": state["messages"] + [AIMessage(content="Thanks! Your name has been recorded. When you're ready to move on to the next step, just send a message!")],
     }
 
 def invalid_step(state: AgentState):
@@ -62,13 +65,34 @@ def invalid_step(state: AgentState):
         "current_step": "",
     }
 
+def ask_resume(state: AgentState):
+    """Asks the user for their resume and moves on to the next step"""
+    return {
+        "current_step": Step.STORE_FACTS_FROM_RESUME.value,
+        "messages": state["messages"] + [AIMessage(content="Copy paste your resume so I can start building your profile. No need to worry about formatting, I can take care of it!")],
+    }
+
+def store_facts_from_resume(state: AgentState):
+    """Asks the user for their resume and moves on to the next step"""
+
+    user_response: str = state["messages"][-1].content if state["messages"] else "" # type: ignore
+    facts_from_resume = parse_resume(user_response)
+
+    # TODO store the resume facts in chroma
+    return {
+        "current_agent":"",
+        "current_step": "",
+        "messages": state["messages"] + [AIMessage(content="Great, I just parsed your resume to store facts about you.")],
+    }
+
+
 def build_onboarding_graph():
     graph = StateGraph(AgentState)
 
+    # Automatically add all enum step functions as nodes, plus onboarding_agent 
     graph.add_node(onboarding_agent)
-    graph.add_node(ask_name)
-    graph.add_node(verify_name)
-    graph.add_node(invalid_step)
+    for step in Step:
+        graph.add_node(globals()[step.value])
 
     graph.add_edge(START, "onboarding_agent")
 
@@ -77,16 +101,15 @@ def build_onboarding_graph():
         "onboarding_agent",
         lambda state: state["current_step"],
         {
-            Step.ASK_NAME.value: "ask_name",
-            Step.VERIFY_NAME.value: "verify_name",
-            "invalid_step": "invalid_step",
+            **{
+                step.value: step.value
+                for step in Step
+            }
         },
     )
 
-    # Each step just ends (I'll re-invoke later)
-    graph.add_edge("ask_name", END)
-    graph.add_edge("verify_name", END)
-    graph.add_edge("invalid_step", END)
+    for node in [step.value for step in Step]:
+        graph.add_edge(node, END)
 
     return graph.compile()
 
