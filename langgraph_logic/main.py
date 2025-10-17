@@ -1,8 +1,11 @@
 from langgraph.graph import StateGraph, START, END
 from langchain.schema import HumanMessage, AIMessage
+from langgraph_logic import onboarding
 from langgraph_logic.models import *
 from langgraph_logic.github import build_github_graph
 from pprint import pprint
+from langgraph_logic.onboarding import build_onboarding_graph
+from langgraph_logic.router_helpers import *
 from langgraph_logic.agents import *
 
 # --- Intent Router ---
@@ -12,8 +15,9 @@ def intent_router(state: AgentState):
         return {"next": state["current_agent"]}
 
     # New conversation or the user has exited one of the other agents 
-    # next_node = classify_intent(state)
-    return {"next": Agent.FALLBACK.value}
+    next_node = classify_intent(state)
+    print(next_node.value)
+    return {"next": next_node.value}
 
 
 # --- Mock Agents ---
@@ -40,9 +44,12 @@ def build_main_graph():
     graph = StateGraph(AgentState)
 
     github_agent = build_github_graph()
+    onboarding_agent = build_onboarding_graph()
+
     graph.add_node(intent_router)
     graph.add_node(linkedin_agent)
     graph.add_node("github_agent", github_agent)
+    graph.add_node("onboarding_agent", onboarding_agent)
     graph.add_node(resume_agent)
     graph.add_node(fallback_agent)
 
@@ -53,13 +60,14 @@ def build_main_graph():
         lambda state: state["next"],
         {
             "linkedin_agent": "linkedin_agent",
+            "onboarding_agent": "onboarding_agent",
             "github_agent": "github_agent",
             "resume_agent": "resume_agent",
             "fallback_agent": "fallback_agent",
         },
     )
 
-    for node in ["linkedin_agent", "github_agent", "resume_agent", "fallback_agent"]:
+    for node in ["linkedin_agent", "onboarding_agent", "github_agent", "resume_agent", "fallback_agent"]:
         graph.add_edge(node, END)
 
     graph = graph.compile()

@@ -38,8 +38,6 @@ def classify_intent(state: AgentState) -> Agent:
         role = "User" if getattr(msg, "role", None) == "user" or msg.__class__.__name__ == "HumanMessage" else "Assistant"
         route_prompt += f"{role}: {msg.content}\n"
 
-    print(route_prompt)
-
     route_prompt += (
         "\nBased on the user's request and the context, "
         "reply ONLY with the agent key (from the available values above, e.g., 'github_agent', 'onboarding_agent', 'resume_agent', etc.) "
