@@ -1,13 +1,13 @@
 from langgraph_logic.models import AgentState
 from langchain.schema import HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
-from langgraph_logic.main import Agent, AGENT_DESCRIPTIONS
 from dotenv import load_dotenv
+from langgraph_logic.agents import *
 
 load_dotenv()
 llm = ChatOpenAI(model="gpt-4o-mini")
 
-def intent_router(state: AgentState):
+def classify_intent(state: AgentState) -> Agent:
     """
     Determines the next agent to route the user's request to based on 
     conversation history
@@ -53,8 +53,9 @@ def intent_router(state: AgentState):
     # Defensive check to ensure the agent exists
     valid_agent_keys = [agent.value for agent in Agent]
     if agent_key not in valid_agent_keys:
-        agent_key = "fallback_agent"
-    return {"next": agent_key}
+        agent_key = Agent.FALLBACK
+
+    return Agent(agent_key)
 
 if __name__ == "__main__":
     new_chat: AgentState = {
@@ -67,4 +68,4 @@ if __name__ == "__main__":
             HumanMessage(content="yea")
         ]
     }
-    print(intent_router(new_chat))
+    print(classify_intent(new_chat).value)
