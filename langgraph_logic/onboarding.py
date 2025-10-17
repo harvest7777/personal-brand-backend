@@ -73,9 +73,17 @@ def ask_resume(state: AgentState):
     }
 
 def store_facts_from_resume(state: AgentState):
-    """Asks the user for their resume and moves on to the next step"""
+    """Validates the user's resume and stores facts from it if valid, re routes to this step if not"""
 
     user_response: str = state["messages"][-1].content if state["messages"] else "" # type: ignore
+
+    valid_resume = is_valid_resume(user_response)
+
+    if not valid_resume:
+        return {
+            "current_step": Step.STORE_FACTS_FROM_RESUME.value,
+            "messages": state["messages"] + [AIMessage(content="That doesn't seem like a resume. Please try again.")],
+        }
     facts_from_resume = parse_resume(user_response)
 
     # TODO store the resume facts in chroma

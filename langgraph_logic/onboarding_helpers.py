@@ -5,6 +5,7 @@ from langgraph.graph import StateGraph, START
 from langchain.schema import AIMessage, HumanMessage
 from dotenv import load_dotenv
 import os
+from pydantic_core import validate_core_schema
 from supabase import create_client, Client
 
 load_dotenv()
@@ -53,6 +54,29 @@ def extract_name(user_input: str):
 
     extracted_name = response.content.strip()  # type: ignore
     return extracted_name
+
+
+def is_valid_resume(user_input: str) -> bool:
+    """Check if the user's message is an answer to 'Please copy paste your resume.'"""
+    response = llm.invoke([
+        HumanMessage(content=f"""
+        You are validating user input.
+
+        The user was asked: "Please copy paste your resume."
+
+        Determine if their response below *answers that question* by providing the content of a resume or the bulk of a CV.
+        This generally means it should look like a resume (contains multiple sections like education, skills, experience, job history, formatting or lists, and enough length).
+        
+        Reject responses that are clearly not a resume (e.g., "I don't have one", "not sure", "Hi", "John Smith", "I'm ready", etc.).
+        Accept ONLY if the input is the likely copy-pasted contents of a resume file.
+
+        Respond with only 'yes' or 'no'.
+
+        User response: "{user_input}"
+        """)
+    ])
+    answer = response.content.strip().lower()  # type: ignore
+    return answer == "yes"
 
 def parse_resume(resume_contents: str) -> list[str]:
     """
@@ -136,5 +160,5 @@ if __name__ == "__main__":
     Algorithms curriculum
     • Utilized HTML canvas with JavaScript and CSS to create a Binary Tree traversal game
     """
-    facts = parse_resume(resume)
-    print(facts)
+    is_valid = is_valid_resume(resume)
+    print(is_valid)
