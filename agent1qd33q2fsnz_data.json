@@ -29,5 +29,76 @@
                 "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
             }
         ]
+    },
+    "4696c0b5-163c-4742-824d-e34bec19977a": {
+        "agent_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "",
+        "current_step": "",
+        "messages": [
+            {
+                "role": "human",
+                "content": " hello"
+            },
+            {
+                "role": "ai",
+                "content": "What is your name?"
+            },
+            {
+                "role": "human",
+                "content": " ksajrdl"
+            },
+            {
+                "role": "ai",
+                "content": "That doesn't seem like a valid name. Please try again."
+            },
+            {
+                "role": "human",
+                "content": " sxxd"
+            },
+            {
+                "role": "ai",
+                "content": "That doesn't seem like a valid name. Please try again."
+            },
+            {
+                "role": "human",
+                "content": " call me ryan"
+            },
+            {
+                "role": "ai",
+                "content": "Thanks! Your name has been recorded."
+            },
+            {
+                "role": "human",
+                "content": " hello"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " im new i wanna make a account"
+            },
+            {
+                "role": "ai",
+                "content": "What is your name?"
+            },
+            {
+                "role": "human",
+                "content": " i ain ttelling u lol"
+            },
+            {
+                "role": "ai",
+                "content": "That doesn't seem like a valid name. Please try again."
+            },
+            {
+                "role": "human",
+                "content": " ryan "
+            },
+            {
+                "role": "ai",
+                "content": "Thanks! Your name has been recorded."
+            }
+        ]
     }
 }

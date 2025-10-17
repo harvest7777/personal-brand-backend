@@ -41,7 +41,9 @@ def classify_intent(state: AgentState) -> Agent:
     route_prompt += (
         "\nBased on the user's request and the context, "
         "reply ONLY with the agent key (from the available values above, e.g., 'github_agent', 'onboarding_agent', 'resume_agent', etc.) "
-        "that should handle this request. If you are unsure, select 'fallback_agent'. "
+        "that should handle this request. "
+        "If the user's message is just a greeting (for example, 'hey', 'hello', 'hi'), or is otherwise ambiguous and not related to any specific action, route to 'fallback_agent'. "
+        "If you are unsure, select 'fallback_agent'. "
         "Do not explain your answer."
     )
 
