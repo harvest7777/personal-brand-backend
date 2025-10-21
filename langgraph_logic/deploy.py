@@ -4,6 +4,7 @@ from langgraph_logic.models import *
 from enum import Enum
 from langgraph_logic.deploy_helpers import *
 from langgraph_logic.llm import shared_llm
+from langgraph_logic.supabase_client import supabase
 
 class Step(Enum):
     ASK_AGENT_ID = "ask_agent_id"
@@ -48,6 +49,12 @@ def verify_agent_id(state: AgentState):
 
     # TODO save this into supabase
     extracted_agent_id = extract_agent_id(user_response)
+    supabase.table("personal_brand_asi_one_relationships").insert(
+        {
+            "asi_one_id": state["agent_id"],
+            "personal_brand_agent_id": extracted_agent_id,
+        }
+    ).execute()
 
     # Done with the onboarding flow 
     return {
