@@ -2,6 +2,7 @@ from chroma.chroma_models import ChromaDocument
 from typing import List
 from langchain.schema import SystemMessage, HumanMessage, BaseMessage
 from langchain_openai import ChatOpenAI
+from langgraph_logic.supabase_client import supabase
 
 def answer_query_with_facts(chroma_documents: List[ChromaDocument], query: str, llm: ChatOpenAI) -> str:
     """
@@ -24,20 +25,20 @@ def answer_query_with_facts(chroma_documents: List[ChromaDocument], query: str, 
     # Create the prompt
     prompt = f"""You are acting as the personal brand agent representing an individual. Your role is to answer questions about this person using the provided facts. You are not the individual themself, but an agent communicating on their behalf, drawing only from the information given to you.
 
-Do not use first person ("I", "my") or speak as if you are the subject of the facts. Always refer to the individual in the third person (e.g., "Ryan" or "the candidate").
+    Do not use first person ("I", "my") or speak as if you are the subject of the facts. Always refer to the individual in the third person (e.g., "Ryan" or "the candidate").
 
-Base your answers strictly on the facts given below. When you make reasonable inferences (for example, deducing that if someone can fix AI-generated code, they can also address common coding issues), explicitly state that an inference is being made and explain your reasoning.
+    Base your answers strictly on the facts given below. When you make reasonable inferences (for example, deducing that if someone can fix AI-generated code, they can also address common coding issues), explicitly state that an inference is being made and explain your reasoning.
 
-Do not invent information not directly suggested or implied by the facts, and avoid adding irrelevant details.
+    Do not invent information not directly suggested or implied by the facts, and avoid adding irrelevant details.
 
-When referencing information, mention the source if relevant (e.g., "According to the resume..." or "From the LinkedIn profile...").
+    When referencing information, mention the source if relevant (e.g., "According to the resume..." or "From the LinkedIn profile...").
 
-Facts:
-{facts_text}
+    Facts:
+    {facts_text}
 
-Query: {query}
+    Query: {query}
 
-Please provide a clear, accurate answer based on the facts above, phrased in the third person. If you make an inference, say so and explain your reasoning. If the facts or reasonable inferences are not sufficient to answer, say so clearly."""
+    Please provide a clear, accurate answer based on the facts above, phrased in the third person. If you make an inference, say so and explain your reasoning. If the facts or reasonable inferences are not sufficient to answer, say so clearly."""
 
     try:
         response = llm.invoke([
@@ -49,12 +50,25 @@ Please provide a clear, accurate answer based on the facts above, phrased in the
     except Exception as e:
         return f"Sorry, I encountered an error while generating a response: {str(e)}"
 
+def get_asi_one_id_from_brand_agent_id(brand_agent_id: str) -> str:
+    """
+    Gets the ASI:One ID from the brand agent ID.
+    Args:
+        brand_agent_id: The ID of the brand agent
+    
+    Returns:
+        The ASI:One ID
+    """
+    result = supabase.table("personal_brand_asi_one_relationships").select("asi_one_id").eq("personal_brand_agent_id", brand_agent_id).execute()
+    return result.data[0]["asi_one_id"] if result.data else None # type: ignore
+
 if __name__ == "__main__":
     from chroma.chroma_helpers import *
     from dotenv import load_dotenv
     load_dotenv()
 
-    agent_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
+    # asi_one_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
+    brand_agent_id = 'agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx'
     # query = "What are ryans skills?"
     # query = "can ryan fix my ai coded app"
     # query = "does ryan have experience "
@@ -72,9 +86,6 @@ if __name__ == "__main__":
     # query = "Has Ryan worked with databases before?"
     # query = "What is Ryan's experience with cloud computing?"
     # query = "Can Ryan create an AI agent?"
-    facts = get_most_relevant_facts(agent_id, query, 3)
 
-    llm = ChatOpenAI(model="gpt-4o-mini")
-
-    response = answer_query_with_facts(facts, query, llm)
-    print(response)
+    res = get_asi_one_id_from_brand_agent_id(brand_agent_id)
+    print(res)

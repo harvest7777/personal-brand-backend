@@ -55,8 +55,10 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     # region Querying the database for the most relevant facts and generating a response
     # TODO get this dynamically, this is the agent (user id) that is tied to this brand agent
-    agent_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
-    facts = get_most_relevant_facts(agent_id, human_input, 1)
+    asi_one_id = get_asi_one_id_from_brand_agent_id(agent.address)
+    ctx.logger.info(f"ASI:One ID: {asi_one_id}")
+    facts = get_most_relevant_facts(asi_one_id, human_input, 3)
+    ctx.logger.info(f"Facts: {facts}")
     ai_response = answer_query_with_facts(facts, human_input, llm)
     # endregion
 

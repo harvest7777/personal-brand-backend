@@ -32,7 +32,7 @@ def insert_resume_fact(agent_id: str, fact: str) -> ChromaDocument:
 
     return new_doc
 
-def get_most_relevant_facts(agent_id: str, query: str, n: int) -> list[ChromaDocument]:
+def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaDocument]:
     """
     Retrieves the most relevant facts from Chroma for a specific agent based on a query.
     
@@ -48,7 +48,7 @@ def get_most_relevant_facts(agent_id: str, query: str, n: int) -> list[ChromaDoc
     results = collection.query(
         query_texts=[query],
         n_results=n,
-        where={"user_id": agent_id}
+        where={"user_id": asi_one_id}
     )
     
     # Convert results to ChromaDocument objects
