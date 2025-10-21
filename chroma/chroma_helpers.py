@@ -31,3 +31,50 @@ def insert_resume_fact(agent_id: str, fact: str) -> ChromaDocument:
     )
 
     return new_doc
+
+def get_most_relevant_facts(agent_id: str, query: str, n: int) -> list[ChromaDocument]:
+    """
+    Retrieves the most relevant facts from Chroma for a specific agent based on a query.
+    
+    Args:
+        agent_id: The agent ID to filter documents by
+        query: The search query to find relevant documents
+        n: The number of most relevant documents to return
+    
+    Returns:
+        List of ChromaDocument objects that match the query and belong to the agent
+    """
+    # Query the collection with filtering by agent_id
+    results = collection.query(
+        query_texts=[query],
+        n_results=n,
+        where={"user_id": agent_id}
+    )
+    
+    # Convert results to ChromaDocument objects
+    documents = []
+    if results['documents'] and results['documents'][0]:
+        for i, doc_text in enumerate(results['documents'][0]):
+            # Extract metadata
+            metadata = results['metadatas'][0][i] if results['metadatas'] and results['metadatas'][0] else {}
+            doc_id = results['ids'][0][i] if results['ids'] and results['ids'][0] else str(uuid.uuid4())
+            
+            
+            # Create ChromaDocument object
+            chroma_doc = ChromaDocument(
+                id=doc_id,
+                agent_id=str(metadata['user_id']),
+                document=doc_text,
+                source=str(metadata['source']),
+                time_logged=datetime.fromisoformat(str(metadata['time_logged']))
+            )
+            documents.append(chroma_doc)
+    
+    return documents
+
+if __name__ == "__main__":
+    agent_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
+    query = "What are  skills?"
+
+    facts = get_most_relevant_facts(agent_id, query, 1)
+    print(facts)
