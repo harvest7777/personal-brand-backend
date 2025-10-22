@@ -10,10 +10,14 @@ from langgraph_logic.onboarding_helpers import *
 def linkedin_agent(state: AgentState):
     """Initial entry point for the LinkedIn Agent, it will determine the next step to display to the user"""
 
+    asi_one_id = state["agent_id"]
+    connection_request = composio.connected_accounts.link(asi_one_id, LINKEDIN_AUTH_CONFIG_ID)
 
+    redirect_url = connection_request.redirect_url
     return {
         "current_step": "",
-        "messages": state["messages"]
+        "current_agent": "",
+        "messages": state["messages"] + [AIMessage(content=f"Please [click here to connect your LinkedIn account]({redirect_url}).")]
     }
 
 

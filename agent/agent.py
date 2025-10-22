@@ -62,35 +62,6 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     next_state = graph.invoke(current_state) # This will return a dict, NOT a state object
 
-    next_agent = next_state["current_agent"]
-
-    # region Special auth flow
-    if next_agent == "linkedin_agent":
-        ctx.logger.info("Handling LinkedIn auth flow")
-        connection_request = composio.connected_accounts.link(sender, LINKEDIN_AUTH_CONFIG_ID)
-
-        redirect_url = connection_request.redirect_url
-        await ctx.send(sender, ChatMessage(
-            timestamp=datetime.now(),
-            msg_id=uuid4(),
-            content=[
-                TextContent(type="text", text=f"Please [click here to connect your LinkedIn account]({redirect_url}).")
-            ]
-        ))
-
-        connection_request.wait_for_connection()
-        await ctx.send(sender, ChatMessage(
-            timestamp=datetime.now(),
-            msg_id=uuid4(),
-            content=[
-                TextContent(type="text", text="LinkedIn account connected successfully")
-            ]
-        ))
-
-        # We do not want to save the state for auth flows so we early return
-        return
-    # endregion
-
     json_result = langgraph_state_to_json(next_state) # Has to be json to store in agent db
     ctx.storage.set(chat_id, json_result) # Save the new state to the DB
     # endregion
