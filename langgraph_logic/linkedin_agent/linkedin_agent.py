@@ -10,7 +10,7 @@ from langgraph_logic.onboarding_helpers import *
 def linkedin_agent(state: AgentState):
     """Initial entry point for the LinkedIn Agent, it will determine the next step to display to the user"""
 
-    asi_one_id = state["agent_id"]
+    asi_one_id = state["asi_one_id"]
     connection_request = composio.connected_accounts.link(asi_one_id, LINKEDIN_AUTH_CONFIG_ID)
 
     redirect_url = connection_request.redirect_url
@@ -38,7 +38,7 @@ def build_linkedin_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_linkedin_graph()
-    new_chat: AgentState = {"agent_id": "user123", "current_step": "", "current_agent": "", "messages": [HumanMessage(content="github")]}
+    new_chat: AgentState = {"asi_one_id": "user123", "current_step": "", "current_agent": "", "messages": [HumanMessage(content="github")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)
 

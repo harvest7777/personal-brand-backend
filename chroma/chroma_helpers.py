@@ -7,13 +7,13 @@ from datetime import datetime
 chroma_client = chromadb.PersistentClient()
 collection = chroma_client.get_or_create_collection(name=COLLECTION)
 
-def insert_resume_fact(agent_id: str, fact: str) -> ChromaDocument:
+def insert_resume_fact(asi_one_id: str, fact: str) -> ChromaDocument:
     """Takes a resume fact and embeds it with additional metadata needed for chroma, returns the inserted document"""
 
     # TODO delete all the old resume facts if the user is uploading again to avoid stale information
     new_doc = ChromaDocument(
         id=str(uuid.uuid4()),
-        agent_id=agent_id,
+        asi_one_id=asi_one_id,
         document=fact,
         source=Source.RESUME.value,
         time_logged=datetime.now().astimezone()
@@ -25,7 +25,7 @@ def insert_resume_fact(agent_id: str, fact: str) -> ChromaDocument:
         documents=[new_doc.document],
         metadatas=[{
             "source": new_doc.source,
-            "user_id": new_doc.agent_id,
+            "asi_one_id": new_doc.asi_one_id,
             "time_logged": new_doc.time_logged.isoformat()
         }]
     )
@@ -37,7 +37,7 @@ def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaD
     Retrieves the most relevant facts from Chroma for a specific agent based on a query.
     
     Args:
-        agent_id: The agent ID to filter documents by
+        asi_one_id: The agent ID to filter documents by
         query: The search query to find relevant documents
         n: The number of most relevant documents to return
     
@@ -48,7 +48,7 @@ def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaD
     results = collection.query(
         query_texts=[query],
         n_results=n,
-        where={"user_id": asi_one_id}
+        where={"asi_one_id": asi_one_id}
     )
     
     # Convert results to ChromaDocument objects
@@ -63,7 +63,7 @@ def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaD
             # Create ChromaDocument object
             chroma_doc = ChromaDocument(
                 id=doc_id,
-                agent_id=str(metadata['user_id']),
+                asi_one_id=str(metadata['asi_one_id']),
                 document=doc_text,
                 source=str(metadata['source']),
                 time_logged=datetime.fromisoformat(str(metadata['time_logged']))
@@ -73,8 +73,8 @@ def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaD
     return documents
 
 if __name__ == "__main__":
-    agent_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
+    asi_one_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
     query = "What are  skills?"
 
-    facts = get_most_relevant_facts(agent_id, query, 1)
+    facts = get_most_relevant_facts(asi_one_id, query, 1)
     print(facts)

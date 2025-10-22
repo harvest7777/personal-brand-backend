@@ -77,7 +77,7 @@ def build_main_graph():
 if __name__ == "__main__":
     graph = build_main_graph()
 
-    new_chat: AgentState = {"agent_id":"user1234234","current_step":"","current_agent":"","messages": [HumanMessage(content="i want to connect linkedin")]}
+    new_chat: AgentState = {"asi_one_id":"user1234234","current_step":"","current_agent":"","messages": [HumanMessage(content="i want to connect linkedin")]}
     result = graph.invoke(new_chat)
 
 

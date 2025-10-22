@@ -51,7 +51,7 @@ def verify_agent_id(state: AgentState):
     extracted_agent_id = extract_agent_id(user_response)
     supabase.table("personal_brand_asi_one_relationships").insert(
         {
-            "asi_one_id": state["agent_id"],
+            "asi_one_id": state["asi_one_id"],
             "personal_brand_agent_id": extracted_agent_id,
         }
     ).execute()
@@ -103,6 +103,6 @@ def build_deploy_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_deploy_graph()
-    new_chat: AgentState = {"agent_id": "user123", "current_step": "verify_agent_id", "current_agent": "deploy_agent", "messages": [HumanMessage(content="My agent id is agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx")]}
+    new_chat: AgentState = {"asi_one_id": "user123", "current_step": "verify_agent_id", "current_agent": "deploy_agent", "messages": [HumanMessage(content="My agent id is agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)

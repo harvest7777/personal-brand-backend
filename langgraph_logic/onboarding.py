@@ -90,7 +90,7 @@ def store_facts_from_resume(state: AgentState):
 
     # Store all the facts in chroma
     for fact in facts_from_resume:
-        insert_resume_fact(state["agent_id"], fact)
+        insert_resume_fact(state["asi_one_id"], fact)
 
     return {
         "current_agent":"",
@@ -130,6 +130,6 @@ def build_onboarding_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_onboarding_graph()
-    new_chat: AgentState = {"agent_id": "user123", "current_step": "", "current_agent": "", "messages": [HumanMessage(content="github")]}
+    new_chat: AgentState = {"asi_one_id": "user123", "current_step": "", "current_agent": "", "messages": [HumanMessage(content="github")]}
     result = graph.invoke(new_chat)
     pprint(result, indent=2)
