@@ -1,17 +1,10 @@
 from langchain.schema import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
-from supabase_auth import UserResponse
 from chroma.chroma_helpers import insert_resume_fact
+from langgraph_logic.supabase_client import supabase
 from langgraph_logic.models import *
-from enum import Enum
 from langgraph_logic.onboarding_helpers import *
-
-class Step(Enum):
-    ASK_NAME = "ask_name"
-    VERIFY_NAME = "verify_name"
-    ASK_RESUME = "ask_resume"
-    INVALID_STEP = "invalid_step"
-    STORE_FACTS_FROM_RESUME = "store_facts_from_resume"
+from langgraph_logic.onboarding_types import Step
 
 def onboarding_agent(state: AgentState):
     """Initial entry point for the Onboarding Agent, it will determine the next step to display to the user"""
@@ -20,7 +13,8 @@ def onboarding_agent(state: AgentState):
 
     if not current_step or not is_valid_step:
         # We could check what information we already have about the user at this point then route them properly
-        current_step = Step.ASK_NAME.value
+        inferred_step = get_current_step(get_milestone_step_statuses(state["asi_one_id"]))
+        current_step = inferred_step.value
 
     return {
         "current_step": current_step,
@@ -50,6 +44,10 @@ def verify_name(state: AgentState):
 
     # TODO save this into supabase
     extracted_name = extract_name(user_response)
+    supabase.table("user_profiles").insert({
+        "asi_one_id": state["asi_one_id"],
+        "name": extracted_name
+    }).execute()
 
     # Done with the onboarding flow 
     return {
@@ -98,6 +96,12 @@ def store_facts_from_resume(state: AgentState):
         "messages": state["messages"] + [AIMessage(content="Great, I just parsed your resume to store facts about you.")],
     }
 
+def complete(state: AgentState):
+    return {
+        "current_step": "",
+        "current_agent": "",
+        "messages": state["messages"] + [AIMessage(content="You've already completed the onboarding process. You can now start using the platform.")],
+    }
 
 def build_onboarding_graph():
     graph = StateGraph(AgentState)

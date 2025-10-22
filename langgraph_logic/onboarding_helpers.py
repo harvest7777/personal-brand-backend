@@ -1,25 +1,55 @@
-from ast import List
-from calendar import c
 from langchain_openai import ChatOpenAI
-from langgraph.graph import StateGraph, START
-from langchain.schema import AIMessage, HumanMessage
+from langchain.schema import HumanMessage
 from dotenv import load_dotenv
-import os
-from pydantic_core import validate_core_schema
-from supabase import create_client, Client
+from langgraph_logic.supabase_client import supabase
+from langgraph_logic.onboarding_types import Step
+from chroma.shared_chroma_client import chroma_client
+from chroma.chroma_constants import COLLECTION, Source
 
 load_dotenv()
-url: str = os.environ.get("SUPABASE_URL") or ""
-key: str = os.environ.get("SUPABASE_KEY") or ""
-supabase: Client = create_client(url, key)
 
 llm = ChatOpenAI(model="gpt-4o-mini")
 
-def call_model(state):
-    response = llm.invoke(state["messages"])
+def get_milestone_step_statuses(asi_one_id: str) -> dict[Step, bool]:
+    """Get the current step of the onboarding process for the given ASI:One ID"""
+    name_verified = False
+    resume_parsed = False
+
+    response = supabase.table("user_profiles").select("*").eq("asi_one_id", asi_one_id).execute()
+    if response.data: # type: ignore
+        user_profile = response.data[0] # type: ignore
+        name = user_profile.get("name") # type: ignore
+        name_verified = name is not None and name != ""
+    
+    resume_facts = chroma_client.get_collection(COLLECTION).query(
+        query_texts=[asi_one_id],
+        n_results=1,
+        where={"source": Source.RESUME.value}
+    )
+
+    if resume_facts["documents"][0] and len(resume_facts["documents"][0]) > 0: # type: ignore
+        resume_parsed = True
+    
     return {
-        "messages": state["messages"] + [response]
+        Step.VERIFY_NAME: name_verified,
+        Step.STORE_FACTS_FROM_RESUME: resume_parsed
     }
+
+def get_current_step(milestone_step_completed: dict[Step, bool]) -> Step:
+    if not milestone_step_completed[Step.VERIFY_NAME]:
+        return Step.ASK_NAME
+    if not milestone_step_completed[Step.STORE_FACTS_FROM_RESUME]:
+        return Step.ASK_RESUME
+
+    return Step.COMPLETE
+
+def get_pretty_milestone_step_statuses(milestone_step_completed: dict[Step, bool]) -> str:
+    milestone_steps = [Step.VERIFY_NAME, Step.STORE_FACTS_FROM_RESUME]
+    pretty_statuses = [
+        f"{'✅' if milestone_step_completed[milestone_step] else '⬜️'}  {milestone_step.value.replace('_', ' ').title()}"
+        for milestone_step in milestone_steps
+    ]
+    return "\n".join(pretty_statuses)
 
 def is_valid_name(user_input: str) -> bool:
     """Check if the user's message is an answer to 'What is your full name?'"""
@@ -40,7 +70,6 @@ def is_valid_name(user_input: str) -> bool:
     answer = response.content.strip().lower()  # type: ignore
     return answer == "yes"
 
-
 def extract_name(user_input: str):
     """Extract the full name from the user's input"""
     response = llm.invoke([
@@ -54,7 +83,6 @@ def extract_name(user_input: str):
 
     extracted_name = response.content.strip()  # type: ignore
     return extracted_name
-
 
 def is_valid_resume(user_input: str) -> bool:
     """Check if the user's message is an answer to 'Please copy paste your resume.'"""
@@ -109,56 +137,8 @@ def parse_resume(resume_contents: str) -> list[str]:
     response = llm.invoke([HumanMessage(content=prompt)])
     return [fact.strip() for fact in response.content.strip().split("\n") if fact.strip() != ""] # type: ignore
 
-
 if __name__ == "__main__":
-    resume = """
-    Ryan Tran
-    Torrance, CA | ryan.tran7312@gmail.com | linkedin.com/in/ryan-p-tran | github.com/harvest7777
-    Education
-    California State University, Long Beach BS Computer Science - 4.0/4.0 GPA Expected May 2027
-    Long Beach, CA
-    Relevant Coursework: Data Structures & Algorithms, Object Oriented Programming, Databases, Operating Systems,
-    Computer Architecture
-    Skills
-    AI/ML: AI Cloud Infrastructure, RAG, Embeddings, Vector Databases, OpenAI API, LangChain
-    Languages: Python, C++, SQL, JavaScript, TypeScript, HTML/CSS
-    Frameworks & Databases: React, Next.js, Flask, Express.js, MongoDB, PostgreSQL, Supabase, Upstash
-    Developer Tools: Unix, Git, Docker, Google Cloud, AWS, Vercel, Ubuntu
-    Experience
-    Software Developer heavytomodified | NextJS, Supabase, Stripe, Git September 2025 - Current
-    Remote
-    • Architecting and implementing relational database schema to support white labeling of 100+ tenants
-    • Migrating 200,000+ records of user data to new database schema
-    Software Engineer Intern Fetch AI | Agents, AI, LLMs, Composio, Git September 2025 - Current
-    Remote
-    • Designing and implementing an AI agent for the Fall 2025 Cohort
-    • Implemented agent-as-a-service architecture to support personalized agents of 20,000+ users
-    Software Engineer Intern Bazalu | NextJS, React, MongoDB, OpenAI API, Git, Fastify May 2025 - August 2025
-    Long Beach, CA
-    • Integrated OpenAI text embedding with MongoDB to enable semantically relevant product searches
-    • Designed and implemented REST APIs for customer facing website
-    • Utilized static site generation and JSON LD to optimize SEO to improve search visibility of local businesses
-    Web Developer & Mentor October 2024 - April 2025
-    Association for Computing Machinery Club | React, Tailwind, Git Long Beach, CA
-    • Created hackathon site resulting in 500+ applications and 10,000+ impressions using React and Tailwind
-    • Mentored 100+ hackers to quickly solve merge conflicts and fix project configs
-    Hackathons Wins
-    1st Place – LAHacks | Agentic AI, LLM, React, Tailwind, Flask April 2025
-    • Won $2,000 with a team of 3 against 1,000+ competitors at UCLA
-    • Debugged through 5,000+ lines of AI generated code by applying fundamental knowledge in AI Agents, LLMs,
-    Flask, and React
-    1st Place - MarinaHacks | AWS, Docker, Socket.io, Express.js, HTML/CSS, Git October 2024
-    • Won as a solo developer against 80+ other participants by developing a multiplayer browser game using Express.js,
-    Socket.io, and HTML/CSS in 24 hours
-    • Containerized app with Docker and deployed to an AWS EC2 box for demonstration
-    Projects
-    130+ Users - imalockin | NextJS, PostgreSQL, Supabase, Google OAuth, Git December 2024 - June 2025
-    • Developed a full-stack social media platform with 2000+ hours of active use time
-    • Ensured responsive design for 40% of the userbase of mobile users
-    1,000+ Users - Binary Tree OSU | JavaScript, HTML/CSS April 2024
-    • Used by 300+ students every semester, selected by CS professors to integrate into official Data Structures &
-    Algorithms curriculum
-    • Utilized HTML canvas with JavaScript and CSS to create a Binary Tree traversal game
-    """
-    is_valid = is_valid_resume(resume)
-    print(is_valid)
+    statuses = (get_milestone_step_statuses("agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"))
+    current_step = get_current_step(statuses)
+    pretty_statuses = get_pretty_milestone_step_statuses(statuses)
+    print(pretty_statuses)

@@ -91,5 +91,136 @@
                 "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
             }
         ]
+    },
+    "af329056-540e-4520-b014-25cd4eebc264": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "",
+        "current_step": "",
+        "messages": [
+            {
+                "role": "human",
+                "content": " hello i want to make an account rn"
+            },
+            {
+                "role": "ai",
+                "content": "Congratulations! You've completed the onboarding process. You can now start using the platform."
+            }
+        ]
+    },
+    "8e4d07d9-f879-412f-b234-a6d8d8375ba0": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "",
+        "current_step": 1,
+        "messages": [
+            {
+                "role": "human",
+                "content": " hello i want to make an account rn"
+            },
+            {
+                "role": "ai",
+                "content": "You've already completed the onboarding process. You can now start using the platform."
+            },
+            {
+                "role": "human",
+                "content": " hello i want to make an account rn"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " i want to make a new account"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            }
+        ]
+    },
+    "ca277940-ec77-48c8-b5e0-182bc5dd9ebf": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "onboarding_agent",
+        "current_step": "store_facts_from_resume",
+        "messages": [
+            {
+                "role": "human",
+                "content": " i want to make a new account"
+            },
+            {
+                "role": "ai",
+                "content": "That doesn't seem like a resume. Please try again."
+            }
+        ]
+    },
+    "a917f84b-f6ad-4e33-8488-2e3aaea19683": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "",
+        "current_step": "",
+        "messages": [
+            {
+                "role": "human",
+                "content": " hello i want to make a new account rn"
+            },
+            {
+                "role": "ai",
+                "content": "Copy paste your resume so I can start building your profile. No need to worry about formatting, I can take care of it!"
+            },
+            {
+                "role": "human",
+                "content": " Ryan Tran\nTorrance, CA | ryan.tran7312@gmail.com | linkedin.com/in/ryan-p-tran | github.com/harvest7777\nEducation\nCalifornia State University, Long Beach BS Computer Science - 4.0/4.0 GPA Expected May 2027\nLong Beach, CA\nRelevant Coursework: Data Structures & Algorithms, Object Oriented Programming, Databases, Operating Systems,\nComputer Architecture\nSkills\nAI/ML: AI Cloud Infrastructure, RAG, Embeddings, Vector Databases, OpenAI API, LangChain\nLanguages: Python, C++, SQL, JavaScript, TypeScript, HTML/CSS\nFrameworks & Databases: React, Next.js, Flask, Express.js, MongoDB, PostgreSQL, Supabase, Upstash\nDeveloper Tools: Unix, Git, Docker, Google Cloud, AWS, Vercel, Ubuntu\nExperience\nSoftware Developer heavytomodified | NextJS, Supabase, Stripe, Git September 2025 - Current\nRemote\n• Architecting and implementing relational database schema to support white labeling of 100+ tenants\n• Migrating 200,000+ records of user data to new database schema\nSoftware Engineer Intern Fetch AI | Agents, AI, LLMs, Composio, Git September 2025 - Current\nRemote\n• Designing and implementing an AI agent for the Fall 2025 Cohort\n• Implemented agent-as-a-service architecture to support personalized agents of 20,000+ users\nSoftware Engineer Intern Bazalu | NextJS, React, MongoDB, OpenAI API, Git, Fastify May 2025 - August 2025\nLong Beach, CA\n• Integrated OpenAI text embedding with MongoDB to enable semantically relevant product searches\n• Designed and implemented REST APIs for customer facing website\n• Utilized static site generation and JSON LD to optimize SEO to improve search visibility of local businesses\nWeb Developer & Mentor October 2024 - April 2025\nAssociation for Computing Machinery Club | React, Tailwind, Git Long Beach, CA\n• Created hackathon site resulting in 500+ applications and 10,000+ impressions using React and Tailwind\n• Mentored 100+ hackers to quickly solve merge conflicts and fix project configs\nHackathons Wins\n1st Place – LAHacks | Agentic AI, LLM, React, Tailwind, Flask April 2025\n• Won $2,000 with a team of 3 against 1,000+ competitors at UCLA\n• Debugged through 5,000+ lines of AI generated code by applying fundamental knowledge in AI Agents, LLMs,\nFlask, and React\n1st Place - MarinaHacks | AWS, Docker, Socket.io, Express.js, HTML/CSS, Git October 2024\n• Won as a solo developer against 80+ other participants by developing a multiplayer browser game using Express.js,\nSocket.io, and HTML/CSS in 24 hours\n• Containerized app with Docker and deployed to an AWS EC2 box for demonstration\nProjects\n130+ Users - imalockin | NextJS, PostgreSQL, Supabase, Google OAuth, Git December 2024 - June 2025\n• Developed a full-stack social media platform with 2000+ hours of active use time\n• Ensured responsive design for 40% of the userbase of mobile users\n1,000+ Users - Binary Tree OSU | JavaScript, HTML/CSS April 2024\n• Used by 300+ students every semester, selected by CS professors to integrate into official Data Structures &\nAlgorithms curriculum\n• Utilized HTML canvas with JavaScript and CSS to create a Binary Tree traversal game"
+            },
+            {
+                "role": "ai",
+                "content": "Great, I just parsed your resume to store facts about you."
+            },
+            {
+                "role": "human",
+                "content": " hello how ar eyou"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " hello i want to mak ea new account rn"
+            },
+            {
+                "role": "ai",
+                "content": "You've already completed the onboarding process. You can now start using the platform."
+            }
+        ]
+    },
+    "7194fee0-5a03-43b4-9d44-d8890eca61fd": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "",
+        "current_step": "",
+        "messages": [
+            {
+                "role": "human",
+                "content": " hello how are you?"
+            },
+            {
+                "role": "ai",
+                "content": "\n    [Unclear Intent]\n    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.\n    "
+            },
+            {
+                "role": "human",
+                "content": " hello i wan tto make an account"
+            },
+            {
+                "role": "ai",
+                "content": "Copy paste your resume so I can start building your profile. No need to worry about formatting, I can take care of it!"
+            },
+            {
+                "role": "human",
+                "content": " Ryan Tran\nTorrance, CA | ryan.tran7312@gmail.com | linkedin.com/in/ryan-p-tran | github.com/harvest7777\nEducation\nCalifornia State University, Long Beach BS Computer Science - 4.0/4.0 GPA Expected May 2027\nLong Beach, CA\nRelevant Coursework: Data Structures & Algorithms, Object Oriented Programming, Databases, Operating Systems,\nComputer Architecture\nSkills\nAI/ML: AI Cloud Infrastructure, RAG, Embeddings, Vector Databases, OpenAI API, LangChain\nLanguages: Python, C++, SQL, JavaScript, TypeScript, HTML/CSS\nFrameworks & Databases: React, Next.js, Flask, Express.js, MongoDB, PostgreSQL, Supabase, Upstash\nDeveloper Tools: Unix, Git, Docker, Google Cloud, AWS, Vercel, Ubuntu\nExperience\nSoftware Developer heavytomodified | NextJS, Supabase, Stripe, Git September 2025 - Current\nRemote\n• Architecting and implementing relational database schema to support white labeling of 100+ tenants\n• Migrating 200,000+ records of user data to new database schema\nSoftware Engineer Intern Fetch AI | Agents, AI, LLMs, Composio, Git September 2025 - Current\nRemote\n• Designing and implementing an AI agent for the Fall 2025 Cohort\n• Implemented agent-as-a-service architecture to support personalized agents of 20,000+ users\nSoftware Engineer Intern Bazalu | NextJS, React, MongoDB, OpenAI API, Git, Fastify May 2025 - August 2025\nLong Beach, CA\n• Integrated OpenAI text embedding with MongoDB to enable semantically relevant product searches\n• Designed and implemented REST APIs for customer facing website\n• Utilized static site generation and JSON LD to optimize SEO to improve search visibility of local businesses\nWeb Developer & Mentor October 2024 - April 2025\nAssociation for Computing Machinery Club | React, Tailwind, Git Long Beach, CA\n• Created hackathon site resulting in 500+ applications and 10,000+ impressions using React and Tailwind\n• Mentored 100+ hackers to quickly solve merge conflicts and fix project configs\nHackathons Wins\n1st Place – LAHacks | Agentic AI, LLM, React, Tailwind, Flask April 2025\n• Won $2,000 with a team of 3 against 1,000+ competitors at UCLA\n• Debugged through 5,000+ lines of AI generated code by applying fundamental knowledge in AI Agents, LLMs,\nFlask, and React\n1st Place - MarinaHacks | AWS, Docker, Socket.io, Express.js, HTML/CSS, Git October 2024\n• Won as a solo developer against 80+ other participants by developing a multiplayer browser game using Express.js,\nSocket.io, and HTML/CSS in 24 hours\n• Containerized app with Docker and deployed to an AWS EC2 box for demonstration\nProjects\n130+ Users - imalockin | NextJS, PostgreSQL, Supabase, Google OAuth, Git December 2024 - June 2025\n• Developed a full-stack social media platform with 2000+ hours of active use time\n• Ensured responsive design for 40% of the userbase of mobile users\n1,000+ Users - Binary Tree OSU | JavaScript, HTML/CSS April 2024\n• Used by 300+ students every semester, selected by CS professors to integrate into official Data Structures &\nAlgorithms curriculum\n• Utilized HTML canvas with JavaScript and CSS to create a Binary Tree traversal game"
+            },
+            {
+                "role": "ai",
+                "content": "Great, I just parsed your resume to store facts about you. ✅  Verify Name\n✅  Store Facts From Resume"
+            }
+        ]
     }
 }
