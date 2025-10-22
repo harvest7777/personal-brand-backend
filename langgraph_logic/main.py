@@ -7,6 +7,7 @@ from langgraph_logic.onboarding import build_onboarding_graph
 from langgraph_logic.router_helpers import *
 from langgraph_logic.agents import *
 from utils.data_serialization_helpers import *
+from langgraph_logic.linkedin_agent.linkedin_agent import build_linkedin_graph
 
 # --- Intent Router ---
 def intent_router(state: AgentState):
@@ -16,14 +17,11 @@ def intent_router(state: AgentState):
 
     # New conversation or the user has exited one of the other agents 
     classified_agent = classify_intent(state)
+    print(f"Classified agent: {classified_agent.value}")
     return {"current_agent": classified_agent.value}
 
 
 # --- Mock Agents ---
-# Each agent has steps?
-def linkedin_agent(state: AgentState):
-    return {"messages": [AIMessage(content="Opening LinkedIn profile...")]}
-
 def resume_agent(state: AgentState):
     return {"messages": [AIMessage(content="Ready to upload your resume.")]}
 
@@ -44,12 +42,13 @@ def build_main_graph():
 
     github_agent = build_github_graph()
     onboarding_agent = build_onboarding_graph()
+    linkedin_agent = build_linkedin_graph()
 
     graph.add_node(Agent.GITHUB.value, github_agent)
     graph.add_node(Agent.ONBOARDING.value, onboarding_agent)
+    graph.add_node(Agent.LINKEDIN.value, linkedin_agent)
 
     graph.add_node(intent_router)
-    graph.add_node(linkedin_agent)
     graph.add_node(resume_agent)
     graph.add_node(fallback_agent)
 
@@ -78,12 +77,8 @@ def build_main_graph():
 if __name__ == "__main__":
     graph = build_main_graph()
 
-    new_chat: AgentState = {"agent_id":"user1234234","current_step":"","current_agent":"","messages": [HumanMessage(content="hi")]}
+    new_chat: AgentState = {"agent_id":"user1234234","current_step":"","current_agent":"","messages": [HumanMessage(content="i want to connect linkedin")]}
     result = graph.invoke(new_chat)
 
-    result["messages"].append(HumanMessage(content="my name is ryan "))
-    json_result = langgraph_state_to_json(result) 
-    continued_chat: AgentState = json_agent_state_to_langgraph(json_result) 
 
-    result = graph.invoke(continued_chat)
     pprint(result, indent=2)

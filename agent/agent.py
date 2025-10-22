@@ -1,10 +1,7 @@
 from datetime import datetime
 from langgraph_logic.main import build_main_graph
-from pprint import pformat
 from langgraph_logic.models import * 
 from utils.data_serialization_helpers import *
-from langchain.schema import HumanMessage, AIMessage
-from langgraph.graph import StateGraph, START, END
 from utils.chat_helpers import *
 from utils.db_helpers import *
 from utils.state_helpers import *
@@ -12,12 +9,11 @@ from uuid import uuid4
 import os
 from dotenv import load_dotenv
 from uagents import Context, Protocol, Agent
+from agent.orchestrator_models import *
+from langgraph_logic.composio_client import *
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
     ChatMessage,
-    StartSessionContent,
-    EndSessionContent,
-    AgentContent,
     TextContent,
     chat_protocol_spec,
 )
@@ -64,15 +60,44 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     append_message_to_state(current_state, human_input)
 
-    result = graph.invoke(current_state) # This will return a dict, NOT a state object
-    json_result = langgraph_state_to_json(result) # Has to be json to store in agent db
+    next_state = graph.invoke(current_state) # This will return a dict, NOT a state object
 
+    next_agent = next_state["current_agent"]
+
+    # region Special auth flow
+    if next_agent == "linkedin_agent":
+        ctx.logger.info("Handling LinkedIn auth flow")
+        connection_request = composio.connected_accounts.link(sender, LINKEDIN_AUTH_CONFIG_ID)
+
+        redirect_url = connection_request.redirect_url
+        await ctx.send(sender, ChatMessage(
+            timestamp=datetime.now(),
+            msg_id=uuid4(),
+            content=[
+                TextContent(type="text", text=f"Please [click here to connect your LinkedIn account]({redirect_url}).")
+            ]
+        ))
+
+        connection_request.wait_for_connection()
+        await ctx.send(sender, ChatMessage(
+            timestamp=datetime.now(),
+            msg_id=uuid4(),
+            content=[
+                TextContent(type="text", text="LinkedIn account connected successfully")
+            ]
+        ))
+
+        # We do not want to save the state for auth flows so we early return
+        return
+    # endregion
+
+    json_result = langgraph_state_to_json(next_state) # Has to be json to store in agent db
     ctx.storage.set(chat_id, json_result) # Save the new state to the DB
     # endregion
 
     # region Sending the response back to the user through ASI:One
     if is_sent_by_asione(msg):
-        ai_response = result["messages"][-1].content
+        ai_response = next_state["messages"][-1].content
 
          # Save the updated state to the database
         await ctx.send(sender, ChatMessage(
@@ -85,8 +110,23 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
                 # EndSessionContent(type="end-session") 
             ]
         ))
+
     # endregion
 
+
+# need to define req and respo
+@agent.on_rest_post("/connection_success", ForwardConnectionLink, ConnectionLinkForwardedResponse)
+async def handle_post(ctx: Context, req: ForwardConnectionLink) -> ConnectionLinkForwardedResponse:
+    ctx.logger.info("Received POST request")
+    await ctx.send("agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f", ChatMessage(
+        content=[
+            TextContent(type="text", text=f"Connection link forwarded to {req.redirect_url}"),
+        ]
+    ))
+
+    return ConnectionLinkForwardedResponse(
+        success=True
+    )
 
 @protocol.on_message(ChatAcknowledgement)
 async def handle_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
