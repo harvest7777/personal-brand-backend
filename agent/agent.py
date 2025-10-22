@@ -63,6 +63,7 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
     next_state = graph.invoke(current_state) # This will return a dict, NOT a state object
 
     json_result = langgraph_state_to_json(next_state) # Has to be json to store in agent db
+    ctx.logger.info(f"Json result: {json_result}")
     ctx.storage.set(chat_id, json_result) # Save the new state to the DB
     # endregion
 
