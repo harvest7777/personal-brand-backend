@@ -1,9 +1,7 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph_logic.composio_client import *
-from chroma.chroma_helpers import insert_resume_fact
 from langgraph_logic.models import *
-from enum import Enum
 from langgraph_logic.onboarding_helpers import *
 
 def linkedin_agent(state: AgentState):

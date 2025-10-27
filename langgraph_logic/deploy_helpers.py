@@ -1,21 +1,15 @@
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
-import os
-from supabase import create_client, Client
+from langgraph_logic.supabase_client import supabase
 
 load_dotenv()
-url: str = os.environ.get("SUPABASE_URL") or ""
-key: str = os.environ.get("SUPABASE_KEY") or ""
-supabase: Client = create_client(url, key)
-
 
 def is_valid_agent_id(user_input: str, llm: ChatOpenAI) -> bool:
     """
     Check if the user input contains a valid agent_id, even if the user says something like 'my agent id is ...'.
     Uses an LLM to validate if the user's input contains a legitimate agent id.
     """
-    from langchain_openai import ChatOpenAI
-    from langchain.schema import HumanMessage
+    from langchain_core.messages import HumanMessage
 
 
     response = llm.invoke([
