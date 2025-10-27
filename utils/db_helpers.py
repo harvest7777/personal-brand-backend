@@ -1,6 +1,5 @@
 from uagents_core.contrib.protocols.chat import ChatMessage, MetadataContent, TextContent
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
-from langchain.schema import HumanMessage
 from langgraph_logic.models import AgentState
 from utils.data_serialization_helpers import *
 

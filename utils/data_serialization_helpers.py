@@ -1,5 +1,5 @@
 from langgraph_logic.models import *
-from langchain.schema import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.messages import AnyMessage
 from database.agent_db_models import *
 

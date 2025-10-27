@@ -1,6 +1,4 @@
 from uagents_core.contrib.protocols.chat import ChatMessage, MetadataContent, TextContent
-from langchain.schema import HumanMessage
-from langgraph_logic.models import AgentState
 
 def is_sent_by_asione(msg: ChatMessage) -> bool:
     """Determines if a ChatMessage was sent by ASI:One"""

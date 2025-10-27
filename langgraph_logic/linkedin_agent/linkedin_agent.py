@@ -1,7 +1,6 @@
-from langchain.schema import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph_logic.composio_client import *
-from supabase_auth import UserResponse
 from chroma.chroma_helpers import insert_resume_fact
 from langgraph_logic.models import *
 from enum import Enum
