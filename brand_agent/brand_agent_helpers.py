@@ -1,6 +1,6 @@
 from chroma.chroma_models import ChromaDocument
 from typing import List
-from langchain.schema import SystemMessage, HumanMessage, BaseMessage
+from langchain_core.messages import SystemMessage, HumanMessage, BaseMessage
 from langchain_openai import ChatOpenAI
 from langgraph_logic.supabase_client import supabase
 

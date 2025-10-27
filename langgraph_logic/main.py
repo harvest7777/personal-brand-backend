@@ -1,5 +1,5 @@
 from langgraph.graph import StateGraph, START, END
-from langchain.schema import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langgraph_logic.models import *
 from langgraph_logic.github import build_github_graph
 from pprint import pprint

@@ -1,5 +1,5 @@
 from langgraph_logic.models import AgentState
-from langchain.schema import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 from langgraph_logic.agents import *

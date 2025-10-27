@@ -1,5 +1,5 @@
 from langchain_openai import ChatOpenAI
-from langchain.schema import HumanMessage
+from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
 from langgraph_logic.supabase_client import supabase
 from langgraph_logic.onboarding_types import Step

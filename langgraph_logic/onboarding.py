@@ -1,4 +1,4 @@
-from langchain.schema import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from chroma.chroma_helpers import insert_resume_fact
 from langgraph_logic.supabase_client import supabase
