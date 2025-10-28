@@ -3,7 +3,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langgraph_logic.models import *
 from langgraph_logic.github import build_github_graph
 from pprint import pprint
-from langgraph_logic.onboarding import build_onboarding_graph
+from langgraph_logic.onboarding_agent.onboarding_agent import build_onboarding_graph
 from langgraph_logic.router_helpers import *
 from langgraph_logic.agents import *
 from utils.data_serialization_helpers import *

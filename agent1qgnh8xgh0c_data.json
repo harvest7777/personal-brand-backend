@@ -19,6 +19,14 @@
             {
                 "role": "ai",
                 "content": "Please [click here to connect your LinkedIn account](https://connect.composio.dev/link/lk_sZFAskERFBG6)."
+            },
+            {
+                "role": "human",
+                "content": " hello i wanna make an account rn"
+            },
+            {
+                "role": "ai",
+                "content": "You've already completed the onboarding process. You can now start using the platform."
             }
         ]
     }

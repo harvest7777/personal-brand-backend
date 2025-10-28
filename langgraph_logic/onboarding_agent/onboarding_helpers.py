@@ -2,7 +2,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
 from langgraph_logic.supabase_client import supabase
-from langgraph_logic.onboarding_types import Step
+from langgraph_logic.onboarding_agent.onboarding_types import Step
 from chroma.shared_chroma_client import chroma_client
 from chroma.chroma_constants import COLLECTION, Source
 
