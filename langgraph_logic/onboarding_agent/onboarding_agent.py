@@ -1,7 +1,7 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from chroma.chroma_helpers import insert_resume_fact
-from langgraph_logic.supabase_client import supabase
+from langgraph_logic.shared_clients.supabase_client import supabase
 from langgraph_logic.models import *
 from langgraph_logic.onboarding_agent.onboarding_helpers import *
 from langgraph_logic.onboarding_agent.onboarding_types import Step

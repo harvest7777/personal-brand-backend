@@ -1,4 +1,4 @@
-from langgraph_logic.composio_client import composio
+from langgraph_logic.shared_clients.composio_client import composio
 
 LINKEDIN_AUTH_CONFIG_ID = "ac_S29IN2PEi_IR"
 def get_linkedin_auth_url(asi_one_id: str):

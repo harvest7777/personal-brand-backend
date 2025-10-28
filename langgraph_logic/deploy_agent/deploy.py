@@ -3,8 +3,8 @@ from langgraph.graph import StateGraph, START, END
 from langgraph_logic.models import *
 from enum import Enum
 from langgraph_logic.deploy_agent.deploy_helpers import *
-from langgraph_logic.llm import shared_llm
-from langgraph_logic.supabase_client import supabase
+from langgraph_logic.shared_clients.llm_client import shared_llm
+from langgraph_logic.shared_clients.supabase_client import supabase
 
 
 class Step(Enum):
