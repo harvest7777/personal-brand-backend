@@ -21,12 +21,14 @@ def get_linkedin_urn(asi_one_id: str) -> str | None:
         )
         urn = response["data"]["response_dict"]["author_id"]
         return urn
+
     except Exception as e:
         print(f"Error fetching LinkedIn URN: {e}")
         # Either the user isn't linked, or LinkedIn didn't return expected data
         return None
+
     
 if __name__ == "__main__":
-    user_id = "iasdfjklasfjl"
-    auth_url = get_linkedin_auth_url(user_id)
+    asi_one_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
+    auth_url = get_linkedin_auth_url(asi_one_id)
     print(auth_url)

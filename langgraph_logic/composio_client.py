@@ -12,3 +12,6 @@ if COMPOSIO_API_KEY is None:
 
 LINKEDIN_AUTH_CONFIG_ID = "ac_S29IN2PEi_IR"
 composio = Composio(api_key=COMPOSIO_API_KEY)
+# Print the LinkedIn toolkit info
+toolkit = (composio.toolkits.get("LINKEDIN"))
+print(toolkit.meta.version)

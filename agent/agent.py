@@ -6,6 +6,7 @@ from utils.chat_helpers import *
 from utils.db_helpers import *
 from utils.state_helpers import *
 from uuid import uuid4
+from uagents.setup import fund_agent_if_low
 import os
 from dotenv import load_dotenv
 from uagents import Context, Protocol, Agent
@@ -18,7 +19,6 @@ from uagents_core.contrib.protocols.chat import (
     chat_protocol_spec,
 )
 load_dotenv()
-
 graph = build_main_graph()
 
 agent = Agent(
@@ -27,6 +27,9 @@ agent = Agent(
     port=8001,
     mailbox=True,
 )
+
+fund_agent_if_low(str(agent.wallet.address()))
+
 protocol = Protocol(spec=chat_protocol_spec)
 
 @protocol.on_message(ChatMessage)

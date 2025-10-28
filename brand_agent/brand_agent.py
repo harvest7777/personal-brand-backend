@@ -10,12 +10,10 @@ from uagents import Context, Protocol, Agent
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
     ChatMessage,
-    StartSessionContent,
-    EndSessionContent,
-    AgentContent,
     TextContent,
     chat_protocol_spec,
 )
+
 load_dotenv()
 llm = ChatOpenAI(model="gpt-4o-mini")
 
