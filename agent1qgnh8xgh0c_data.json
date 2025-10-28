@@ -1,8 +1,8 @@
 {
     "97ce7df7-5c1b-49ab-a11c-95e012aec0d7": {
         "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
-        "current_agent": "",
-        "current_step": "",
+        "current_agent": "deploy_agent",
+        "current_step": "verify_agent_id",
         "messages": [
             {
                 "role": "human",
@@ -27,6 +27,14 @@
             {
                 "role": "ai",
                 "content": "You've already completed the onboarding process. You can now start using the platform."
+            },
+            {
+                "role": "human",
+                "content": " i want to deploy my agent"
+            },
+            {
+                "role": "ai",
+                "content": "What is the id of the agent that will be your personal brand?"
             }
         ]
     }
