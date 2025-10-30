@@ -6,6 +6,7 @@ from utils.chat_helpers import *
 from utils.db_helpers import *
 from utils.state_helpers import *
 from uuid import uuid4
+from langchain_core.load import dumps, loads
 from uagents.setup import fund_agent_if_low
 import os
 from dotenv import load_dotenv

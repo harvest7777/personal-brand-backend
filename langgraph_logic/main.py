@@ -4,6 +4,7 @@ from langgraph_logic.models import *
 from langgraph_logic.github import build_github_graph
 from pprint import pprint
 from langgraph_logic.onboarding_agent.onboarding_agent import build_onboarding_graph
+from langchain_core.load import dumps, loads
 from langgraph_logic.router_helpers import *
 from langgraph_logic.agents import *
 from utils.data_serialization_helpers import *
@@ -84,8 +85,24 @@ def build_main_graph():
 if __name__ == "__main__":
     graph = build_main_graph()
 
-    new_chat: AgentState = {"asi_one_id":"user1234234","current_step":"","current_agent":"","messages": [HumanMessage(content="i want to connect linkedin")]}
+    new_chat: AgentState = {
+        "asi_one_id": "user1234234",
+        "current_step": "",
+        "current_agent": "",
+        "messages": [HumanMessage(content="i want to connect linkedin")]
+    }
     result = graph.invoke(new_chat)
 
+    json_result = dumps(result)
+    print(json_result)
+    loaded_result = loads(json_result)
+    pprint(loaded_result, indent=2)
 
-    pprint(result, indent=2)
+    # Add a new HumanMessage to loaded_result before invoking again
+    from langchain_core.messages import HumanMessage
+
+    if "messages" in loaded_result:
+        loaded_result["messages"].append(HumanMessage(content="i want to be onboarded"))
+
+    res2 = graph.invoke(loaded_result)
+    pprint(res2, indent=2)
