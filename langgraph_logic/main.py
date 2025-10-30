@@ -2,6 +2,7 @@ from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph_logic.models import *
 from langgraph_logic.github import build_github_graph
+from langgraph_logic.gather_agent.gather_agent import build_gather_graph
 from pprint import pprint
 from langgraph_logic.onboarding_agent.onboarding_agent import build_onboarding_graph
 from langchain_core.load import dumps, loads
@@ -48,12 +49,14 @@ def build_main_graph():
     linkedin_agent = build_linkedin_graph()
     delete_agent = build_delete_graph()
     deploy_agent = build_deploy_graph()
+    gather_agent = build_gather_graph()
 
     graph.add_node(Agent.GITHUB.value, github_agent)
     graph.add_node(Agent.ONBOARDING.value, onboarding_agent)
     graph.add_node(Agent.LINKEDIN.value, linkedin_agent)
     graph.add_node(Agent.DELETE.value, delete_agent)
     graph.add_node(Agent.DEPLOY.value, deploy_agent)
+    graph.add_node(Agent.GATHER.value, gather_agent)
     graph.add_node(intent_router)
     graph.add_node(resume_agent)
     graph.add_node(fallback_agent)
@@ -64,13 +67,7 @@ def build_main_graph():
         "intent_router",
         lambda state: state["current_agent"],
         {
-            Agent.LINKEDIN.value: Agent.LINKEDIN.value,
-            Agent.ONBOARDING.value: Agent.ONBOARDING.value,
-            Agent.GITHUB.value: Agent.GITHUB.value,
-            Agent.DELETE.value: Agent.DELETE.value,
-            Agent.RESUME.value: Agent.RESUME.value,
-            Agent.DEPLOY.value: Agent.DEPLOY.value,
-            Agent.FALLBACK.value: Agent.FALLBACK.value,
+            **{agent.value: agent.value for agent in Agent}
         },
     )
 
@@ -84,25 +81,14 @@ def build_main_graph():
 # --- Test ---
 if __name__ == "__main__":
     graph = build_main_graph()
+    new_state = initialize_agent_state("user123")
+    new_state["messages"] = [HumanMessage(content="i want to feed information.")]
+    result = graph.invoke(new_state)
 
-    new_chat: AgentState = {
-        "asi_one_id": "user1234234",
-        "current_step": "",
-        "current_agent": "",
-        "messages": [HumanMessage(content="i want to connect linkedin")]
-    }
-    result = graph.invoke(new_chat)
+    answer = input(result["messages"][-1].content)
+    new_state = AgentState(**result)
+    new_state["messages"].append(HumanMessage(content=answer))
 
-    json_result = dumps(result)
-    print(json_result)
-    loaded_result = loads(json_result)
-    pprint(loaded_result, indent=2)
+    result = graph.invoke(new_state)
 
-    # Add a new HumanMessage to loaded_result before invoking again
-    from langchain_core.messages import HumanMessage
-
-    if "messages" in loaded_result:
-        loaded_result["messages"].append(HumanMessage(content="i want to be onboarded"))
-
-    res2 = graph.invoke(loaded_result)
-    pprint(res2, indent=2)
+    pprint(result, indent=2)
