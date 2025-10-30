@@ -113,6 +113,7 @@ def build_onboarding_graph():
 
     graph.add_edge(START, "onboarding_agent")
 
+    # TODO look into why this works in onboarding??? but not in delete 
     # Route based on current_step (resume logic)
     graph.add_conditional_edges(
         "onboarding_agent",

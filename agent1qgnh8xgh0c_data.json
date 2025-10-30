@@ -37,5 +37,210 @@
                 "content": "What is the id of the agent that will be your personal brand?"
             }
         ]
+    },
+    "ddf5f6f9-6ac4-40be-93ea-e30e705410e2": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "delete_agent",
+        "current_step": "describe_data_to_delete",
+        "messages": [
+            {
+                "role": "human",
+                "content": " id like to delete some data"
+            },
+            {
+                "role": "ai",
+                "content": "What data would you like to delete?"
+            },
+            {
+                "role": "ai",
+                "content": "That doesn't seem right... Please describe the data you want to delete."
+            }
+        ]
+    },
+    "d9d2430d-bc62-47a8-a3b8-61ab15312d06": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "delete_agent",
+        "current_step": "describe_data_to_delete",
+        "messages": [
+            {
+                "role": "human",
+                "content": " i wnt to delete some data"
+            },
+            {
+                "role": "ai",
+                "content": "What data would you like to delete?"
+            },
+            {
+                "role": "human",
+                "content": " i want to delete all my experience at walmart"
+            },
+            {
+                "role": "ai",
+                "content": "What data would you like to delete?"
+            },
+            {
+                "role": "human",
+                "content": " i want to delete some data"
+            },
+            {
+                "role": "ai",
+                "content": "Please select the data you want to delete."
+            },
+            {
+                "role": "human",
+                "content": " i want to delete all fast food experience about me"
+            },
+            {
+                "role": "ai",
+                "content": "That doesn't seem right... Please describe the data you want to delete."
+            }
+        ]
+    },
+    "1dad89ec-11da-4914-b7bb-52707152f4b3": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "",
+        "current_step": "",
+        "messages": [
+            {
+                "role": "human",
+                "content": " i watn to delete some data"
+            },
+            {
+                "role": "ai",
+                "content": "Please select the data you want to delete."
+            },
+            {
+                "role": "human",
+                "content": " I want to delete my data about my work experience at Walmart"
+            },
+            {
+                "role": "ai",
+                "content": "The following data will be deleted: placeholdr to delet elist"
+            },
+            {
+                "role": "human",
+                "content": "  i want to delete my data"
+            },
+            {
+                "role": "ai",
+                "content": "The deletion process has been aborted."
+            }
+        ]
+    },
+    "b9ba0970-27c5-4e00-8331-3c59904174ba": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "",
+        "current_step": "",
+        "messages": [
+            {
+                "role": "human",
+                "content": " i want to delete some data"
+            },
+            {
+                "role": "ai",
+                "content": "Please select the data you want to delete."
+            },
+            {
+                "role": "human",
+                "content": " i want to delete my work experience at walmart"
+            },
+            {
+                "role": "ai",
+                "content": "The following data will be deleted: WILL QUERY DB FOR DATA TO DELETE LATER"
+            },
+            {
+                "role": "human",
+                "content": " yes"
+            },
+            {
+                "role": "ai",
+                "content": "The deletion process has been completed."
+            }
+        ]
+    },
+    "e3e01028-60e6-47f1-b3cb-12775b01a99f": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "delete_agent",
+        "current_step": "confirm_delete",
+        "messages": [
+            {
+                "role": "human",
+                "content": " i want to delete some data"
+            },
+            {
+                "role": "ai",
+                "content": "Please select the data you want to delete."
+            }
+        ]
+    },
+    "33d2ca7e-ba15-4287-ba7f-b4e0a6d4e6d4": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "",
+        "current_step": "",
+        "messages": [
+            {
+                "role": "human",
+                "content": " i want to delete some data"
+            },
+            {
+                "role": "ai",
+                "content": "Please describe the data you want to delete. Example: 'I want to delete my work experience at Walmart'"
+            },
+            {
+                "role": "human",
+                "content": " i want to delete all my work experience ast mcdonalds"
+            },
+            {
+                "role": "ai",
+                "content": "The following data will be deleted: WILL QUERY DB FOR DATA TO DELETE LATER\n\nAre you sure?"
+            },
+            {
+                "role": "human",
+                "content": " yes im absolutely sure i dont want that to represent me bruh"
+            },
+            {
+                "role": "ai",
+                "content": "The deletion process has been completed."
+            }
+        ]
+    },
+    "de62ae6a-cbe6-47ab-a027-9b15f64ee425": {
+        "asi_one_id": "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        "current_agent": "delete_agent",
+        "current_step": "confirm_delete",
+        "messages": [
+            {
+                "role": "human",
+                "content": " i wanna delete some data"
+            },
+            {
+                "role": "ai",
+                "content": "Please describe the data you want to delete. Example: 'I want to delete my work experience at Walmart'"
+            },
+            {
+                "role": "human",
+                "content": " delete all my work experience at mcdonalds"
+            },
+            {
+                "role": "ai",
+                "content": "The following data will be deleted: WILL QUERY DB FOR DATA TO DELETE LATER\n\nAre you sure?"
+            },
+            {
+                "role": "human",
+                "content": " yes"
+            },
+            {
+                "role": "ai",
+                "content": "The deletion process has been completed."
+            },
+            {
+                "role": "human",
+                "content": " awesome"
+            },
+            {
+                "role": "ai",
+                "content": "Please describe the data you want to delete. Example: 'I want to delete my work experience at Walmart'"
+            }
+        ]
     }
 }

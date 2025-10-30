@@ -9,6 +9,7 @@ from langgraph_logic.agents import *
 from utils.data_serialization_helpers import *
 from langgraph_logic.linkedin_agent.linkedin_agent import build_linkedin_graph
 from langgraph_logic.deploy_agent.deploy import build_deploy_graph
+from langgraph_logic.delete_agent.delete_agent import build_delete_graph
 
 # --- Intent Router ---
 def intent_router(state: AgentState):
@@ -44,11 +45,13 @@ def build_main_graph():
     github_agent = build_github_graph()
     onboarding_agent = build_onboarding_graph()
     linkedin_agent = build_linkedin_graph()
+    delete_agent = build_delete_graph()
     deploy_agent = build_deploy_graph()
 
     graph.add_node(Agent.GITHUB.value, github_agent)
     graph.add_node(Agent.ONBOARDING.value, onboarding_agent)
     graph.add_node(Agent.LINKEDIN.value, linkedin_agent)
+    graph.add_node(Agent.DELETE.value, delete_agent)
     graph.add_node(Agent.DEPLOY.value, deploy_agent)
     graph.add_node(intent_router)
     graph.add_node(resume_agent)
@@ -63,6 +66,7 @@ def build_main_graph():
             Agent.LINKEDIN.value: Agent.LINKEDIN.value,
             Agent.ONBOARDING.value: Agent.ONBOARDING.value,
             Agent.GITHUB.value: Agent.GITHUB.value,
+            Agent.DELETE.value: Agent.DELETE.value,
             Agent.RESUME.value: Agent.RESUME.value,
             Agent.DEPLOY.value: Agent.DEPLOY.value,
             Agent.FALLBACK.value: Agent.FALLBACK.value,
