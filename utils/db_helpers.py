@@ -9,4 +9,4 @@ def get_most_recent_state_from_agent_db(chat_id: str, ctx) -> AgentState | None:
     chat_data = ctx.storage.get(chat_id)
     if chat_data is None:
         return None
-    return json_agent_state_to_langgraph(chat_data)
+    return loads(chat_data)

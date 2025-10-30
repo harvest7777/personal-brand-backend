@@ -57,7 +57,7 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     # region Initializing the langgraph state, invoking the graph, then updating the state
     asi_one_id = sender
-    current_state: AgentState | None = get_most_recent_state_from_agent_db(chat_id, ctx)
+    current_state = get_most_recent_state_from_agent_db(chat_id, ctx)
 
     if current_state is None:
         current_state = initialize_agent_state(asi_one_id)
@@ -66,7 +66,7 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     next_state = graph.invoke(current_state) # This will return a dict, NOT a state object
 
-    json_result = langgraph_state_to_json(next_state) # Has to be json to store in agent db
+    json_result = dumps(next_state) # Has to be json to store in agent db
     ctx.storage.set(chat_id, json_result) # Save the new state to the DB
     # endregion
 
