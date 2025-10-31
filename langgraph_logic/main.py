@@ -3,9 +3,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langgraph_logic.models import *
 from langgraph_logic.github import build_github_graph
 from langgraph_logic.gather_agent.gather_agent import build_gather_graph
-from pprint import pprint
 from langgraph_logic.onboarding_agent.onboarding_agent import build_onboarding_graph
-from langchain_core.load import dumps, loads
 from langgraph_logic.router_helpers import *
 from langgraph_logic.agents import *
 from utils.data_serialization_helpers import *
@@ -15,19 +13,18 @@ from langgraph_logic.delete_agent.delete_agent import build_delete_graph
 
 # --- Intent Router ---
 def intent_router(state: AgentState):
+    if user_wants_to_exit_flow(state):
+        return {"current_agent": "END", "current_step": "", "messages": [AIMessage(content="Gotcha, goodbye!")]}
+
     # Continuing where we left off, user is already working with an agent and is in some step
     if "current_agent" in state and state["current_agent"] in [agent.value for agent in Agent]:
         return {"current_agent": state["current_agent"]}
 
     # New conversation or the user has exited one of the other agents 
     classified_agent = classify_intent(state)
-    print(f"Classified agent: {classified_agent.value}")
+
     return {"current_agent": classified_agent.value}
 
-
-# --- Mock Agents ---
-def resume_agent(state: AgentState):
-    return {"messages": [AIMessage(content="Ready to upload your resume.")]}
 
 def fallback_agent(state: AgentState):
     default_message = """
@@ -43,6 +40,7 @@ def fallback_agent(state: AgentState):
 # --- Build Graph ---
 def build_main_graph():
     graph = StateGraph(AgentState)
+    graph.add_node(intent_router)
 
     github_agent = build_github_graph()
     onboarding_agent = build_onboarding_graph()
@@ -57,9 +55,7 @@ def build_main_graph():
     graph.add_node(Agent.DELETE.value, delete_agent)
     graph.add_node(Agent.DEPLOY.value, deploy_agent)
     graph.add_node(Agent.GATHER.value, gather_agent)
-    graph.add_node(intent_router)
-    graph.add_node(resume_agent)
-    graph.add_node(fallback_agent)
+    graph.add_node(Agent.FALLBACK.value, fallback_agent)
 
     graph.add_edge(START, "intent_router")
 
@@ -67,7 +63,8 @@ def build_main_graph():
         "intent_router",
         lambda state: state["current_agent"],
         {
-            **{agent.value: agent.value for agent in Agent}
+            **{agent.value: agent.value for agent in Agent},
+            "END": END,
         },
     )
 
@@ -93,7 +90,8 @@ if __name__ == "__main__":
     result = graph.invoke(new_state)
 
     while True:
-        answer = input(result["messages"][-1].content)
+        print(result["messages"][-1].content)
+        answer = input("> ")
         new_state = AgentState(**result)
         new_state["messages"].append(HumanMessage(content=answer))
 

@@ -7,7 +7,6 @@ class Agent(Enum):
     LINKEDIN = "linkedin_agent"
     DEPLOY = "deploy_agent"
     GITHUB = "github_agent"
-    RESUME = "resume_agent"
     DELETE = "delete_agent"
 # Descriptions for each agent for the intent router to use
 AGENT_DESCRIPTIONS = {
@@ -17,6 +16,5 @@ AGENT_DESCRIPTIONS = {
     Agent.GATHER: "Feeds information about the user's personal brand by asking them a series of questions.",
     Agent.DEPLOY: "Assists with deploying your agent to the agentverse with an agent id.",
     Agent.GITHUB: "Assists with managing or connecting your GitHub profile.",
-    Agent.RESUME: "Helps with uploading, reviewing, or managing your resume.",
     Agent.DELETE: "Assists with deleting your data from your personal brand.",
 }

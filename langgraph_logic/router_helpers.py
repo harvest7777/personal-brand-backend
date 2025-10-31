@@ -7,6 +7,33 @@ from langgraph_logic.agents import *
 load_dotenv()
 llm = ChatOpenAI(model="gpt-4o-mini")
 
+def user_wants_to_exit_flow(state: AgentState) -> bool:
+    """
+    Uses LLM to check if the user wants to exit or stop the current agentic workflow,
+    based on the latest message in the context of a running workflow.
+    """
+    messages = state["messages"]
+    recent_context = messages[-5:]  # Use the last 5 messages for context
+
+    prompt = (
+        "You are a smart assistant monitoring if a user wants to exit or stop their agent workflow.\n"
+        "Given the recent conversation below (user and assistant exchanges), reply ONLY with 'True' "
+        "if the user's most recent message indicates they want to stop, quit, exit, or end the current process/workflow. "
+        "Otherwise, reply with 'False'.\n\n"
+        "Here is the conversation history:\n"
+    )
+
+    for msg in recent_context:
+        role = "User" if getattr(msg, "role", None) == "user" or msg.__class__.__name__ == "HumanMessage" else "Assistant"
+        prompt += f"{role}: {msg.content}\n"
+
+    prompt += ("\nAgain, answer with only 'True' or 'False'.")
+
+    response = llm.invoke([{"role": "system", "content": prompt}])
+    answer = str(response.content).strip().split("\n")[0]
+
+    return answer == "True"
+
 def classify_intent(state: AgentState) -> Agent:
     """
     Determines the next agent to route the user's request to based on 
@@ -58,14 +85,4 @@ def classify_intent(state: AgentState) -> Agent:
     return Agent(agent_key)
 
 if __name__ == "__main__":
-    new_chat: AgentState = {
-        "asi_one_id": "",
-        "current_step": "",
-        "current_agent": "",
-        "messages": [
-            HumanMessage(content="hi"),
-            AIMessage(content="Want to connect your linkedin?"),
-            HumanMessage(content="yea")
-        ]
-    }
-    print(classify_intent(new_chat).value)
+    pass

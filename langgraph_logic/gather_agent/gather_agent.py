@@ -37,12 +37,6 @@ def answer_question(state):
 
     valid = is_valid_answer(current_question, user_answer)
 
-    print("================================================")
-    print("valid, ", valid)
-    print("current_question, ", current_question)
-    print("user_answer, ", user_answer)
-    print("================================================")
-
     if valid:
         return {
             "current_step": Step.GOOD_ANSWER.value,
