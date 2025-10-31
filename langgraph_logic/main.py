@@ -79,16 +79,25 @@ def build_main_graph():
 
 
 # --- Test ---
+def debugprint(state):
+    print("\n" + "=" * 40)
+    print(f"current_agent: {state['current_agent']}")
+    print(f"current_step: {state['current_step']}")
+    print(f"last_message: {state['messages'][-1].content}")
+    print("=" * 40 + "\n")
+
 if __name__ == "__main__":
     graph = build_main_graph()
     new_state = initialize_agent_state("user123")
     new_state["messages"] = [HumanMessage(content="i want to feed information.")]
     result = graph.invoke(new_state)
 
-    answer = input(result["messages"][-1].content)
-    new_state = AgentState(**result)
-    new_state["messages"].append(HumanMessage(content=answer))
+    while True:
+        answer = input(result["messages"][-1].content)
+        new_state = AgentState(**result)
+        new_state["messages"].append(HumanMessage(content=answer))
 
-    result = graph.invoke(new_state)
+        result = graph.invoke(new_state)
+        new_state = result
 
-    pprint(result, indent=2)
+        debugprint(result)

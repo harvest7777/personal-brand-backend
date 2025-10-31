@@ -21,16 +21,29 @@ def gather_agent(state):
 
 def ask_question(state):
     current_topic = state["gather_agent_state"]["current_topic"]
+
     question = generate_question(current_topic, state["messages"])
+
+    state["gather_agent_state"]["current_question"] = question
+
     return {
         "current_step": Step.ANSWER_QUESTION.value,
         "messages": state["messages"] + [AIMessage(content=question)]
     }
 
 def answer_question(state):
-    current_question = state["messages"][-2].content
+    current_question = state["gather_agent_state"]["current_question"]
     user_answer = state["messages"][-1].content
-    if is_valid_answer(current_question, user_answer):
+
+    valid = is_valid_answer(current_question, user_answer)
+
+    print("================================================")
+    print("valid, ", valid)
+    print("current_question, ", current_question)
+    print("user_answer, ", user_answer)
+    print("================================================")
+
+    if valid:
         return {
             "current_step": Step.GOOD_ANSWER.value,
         }
@@ -41,13 +54,15 @@ def answer_question(state):
         }
 
 def good_answer(state):
-    followup_question = generate_question(state["current_topic"], state["messages"])
-    print("good answer")
+    current_topic = state["gather_agent_state"]["current_topic"]
+    followup_question = generate_question(current_topic, state["messages"])
+
+    state["gather_agent_state"]["current_question"] = followup_question
+
     return {
         "current_step": Step.ANSWER_QUESTION.value,
         "messages": state["messages"] + [
-            AIMessage(content="That's great! Let's keep going."),
-            AIMessage(content=followup_question)
+            AIMessage(content=f"That's great! Let's keep going.\n\n{followup_question}")
         ]
     }
 

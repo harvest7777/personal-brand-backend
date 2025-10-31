@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class GatherAgentState(BaseModel):
     current_topic: str
+    current_question: str
 
     def __getitem__(self, key):
         return getattr(self, key)
@@ -22,7 +23,7 @@ def initialize_agent_state(asi_one_id: str) -> AgentState:
         asi_one_id=asi_one_id,
         current_agent="",
         current_step="",
-        gather_agent_state=GatherAgentState(current_topic=""),
+        gather_agent_state=GatherAgentState(current_topic="", current_question=""),
         messages=[]
     )
 
