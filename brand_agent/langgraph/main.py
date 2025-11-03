@@ -3,7 +3,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 from langgraph_logic.models import *
 from langgraph_logic.router_helpers import *
 from brand_agent.langgraph.question_answerer.question_answerer_agent import build_question_answerer_graph
-from brand_agent.langgraph.brand_agent_definitions import Agent
+from brand_agent.langgraph.brand_agent_definitions import Agent, AGENT_DESCRIPTIONS
 
 # --- Intent Router ---
 def intent_router(state: AgentState):
@@ -15,7 +15,8 @@ def intent_router(state: AgentState):
         return {"current_agent": state["current_agent"]}
 
     # New conversation or the user has exited one of the other agents 
-    classified_agent = classify_intent(state)
+    classified_agent = classify_intent(state, Agent, AGENT_DESCRIPTIONS)
+    print(f"Classified agent: {classified_agent}")
 
     return {"current_agent": classified_agent.value}
 
@@ -29,7 +30,7 @@ def fallback_agent(state: AgentState):
     return {
         "messages": [AIMessage(content=default_message)],
         "current_agent": "",
-        "current_step": 1
+        "current_step": ""
     }
 
 # --- Build Graph ---
@@ -59,28 +60,11 @@ def build_main_graph():
     graph = graph.compile()
     return graph
 
-
-# --- Test ---
-def debugprint(state):
-    print("\n" + "=" * 40)
-    print(f"current_agent: {state['current_agent']}")
-    print(f"current_step: {state['current_step']}")
-    print(f"last_message: {state['messages'][-1].content}")
-    print("=" * 40 + "\n")
-
 if __name__ == "__main__":
     graph = build_main_graph()
     new_state = initialize_agent_state("user123")
-    new_state["messages"] = [HumanMessage(content="i want to feed information.")]
+    new_state["messages"] = [HumanMessage(content="can ryan code?")]
+    # new_state["messages"] = [HumanMessage(content="can ryan code?")]
     result = graph.invoke(new_state)
+    print(result["messages"][-1].content)
 
-    while True:
-        print(result["messages"][-1].content)
-        answer = input("> ")
-        new_state = AgentState(**result)
-        new_state["messages"].append(HumanMessage(content=answer))
-
-        result = graph.invoke(new_state)
-        new_state = result
-
-        debugprint(result)

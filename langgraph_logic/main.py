@@ -21,7 +21,7 @@ def intent_router(state: AgentState):
         return {"current_agent": state["current_agent"]}
 
     # New conversation or the user has exited one of the other agents 
-    classified_agent = classify_intent(state)
+    classified_agent = classify_intent(state, Agent, AGENT_DESCRIPTIONS)
 
     return {"current_agent": classified_agent.value}
 
@@ -86,7 +86,7 @@ def debugprint(state):
 if __name__ == "__main__":
     graph = build_main_graph()
     new_state = initialize_agent_state("user123")
-    new_state["messages"] = [HumanMessage(content="i want to feed information.")]
+    new_state["messages"] = [HumanMessage(content="hello")]
     result = graph.invoke(new_state)
 
     while True:

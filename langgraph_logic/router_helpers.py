@@ -1,11 +1,8 @@
+from typing import Type
+from enum import Enum
 from langgraph_logic.models import AgentState
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain_openai import ChatOpenAI
-from dotenv import load_dotenv
 from langgraph_logic.agents import *
-
-load_dotenv()
-llm = ChatOpenAI(model="gpt-4o-mini")
+from langgraph_logic.shared_clients.llm_client import shared_llm
 
 def user_wants_to_exit_flow(state: AgentState) -> bool:
     """
@@ -29,60 +26,45 @@ def user_wants_to_exit_flow(state: AgentState) -> bool:
 
     prompt += ("\nAgain, answer with only 'True' or 'False'.")
 
-    response = llm.invoke([{"role": "system", "content": prompt}])
+    response = shared_llm.invoke([{"role": "system", "content": prompt}])
     answer = str(response.content).strip().split("\n")[0]
 
     return answer == "True"
 
-def classify_intent(state: AgentState) -> Agent:
-    """
-    Determines the next agent to route the user's request to based on 
-    conversation history
-    """
-    # Access full conversation history
+def classify_intent(state: AgentState, agent_enum: Type[Enum], agent_descriptions: dict) -> Enum:
     messages = state["messages"]
-    
-    # You can use the entire conversation for context
-    # This helps with multi-turn conversations and context-aware routing
-    recent_context = messages[-5:]  # Last 5 messages
+    recent_context = messages[-5:]
 
     agent_list = [
-        f"{agent.value}: {description}"
-        for agent, description in AGENT_DESCRIPTIONS.items()
+        f"{agent.value}: {desc}"
+        for agent, desc in agent_descriptions.items()
     ]
     agent_list_str = "\n".join(agent_list)
 
     route_prompt = (
-        f"You are a smart router for a multi-agent system. "
-        f"Your job is to select the most appropriate agent to handle the user's intent, "
-        f"using their recent messages for context. "
-        f"Here are the available agents:\n\n"
-        f"{agent_list_str}\n\n"
-        f"Recent conversation context:\n"
+        "You are a smart router for a multi-agent system.\n"
+        "Choose the most appropriate agent to handle the user's intent.\n\n"
+        f"Available agents:\n{agent_list_str}\n\n"
+        "Recent conversation context:\n"
     )
-
     for msg in recent_context:
         role = "User" if getattr(msg, "role", None) == "user" or msg.__class__.__name__ == "HumanMessage" else "Assistant"
         route_prompt += f"{role}: {msg.content}\n"
 
     route_prompt += (
-        "\nBased on the user's request and the context, "
-        "reply ONLY with the agent key (from the available values above, e.g., 'github_agent', 'onboarding_agent', 'resume_agent', etc.) "
-        "that should handle this request. "
-        "If the user's message is just a greeting (for example, 'hey', 'hello', 'hi'), or is otherwise ambiguous and not related to any specific action, route to 'fallback_agent'. "
-        "If you are unsure, select 'fallback_agent'. "
-        "Do not explain your answer."
+        "\nRespond ONLY with the agent key. "
+        "If unclear or greeting → 'fallback_agent'."
     )
 
-    llm_response = llm.invoke([{"role": "system", "content": route_prompt}])
+    llm_response = shared_llm.invoke([{"role": "system", "content": route_prompt}])
+    # print("LLM response: ", llm_response)
     agent_key = llm_response.content.strip().split("\n")[0] # type: ignore
+    valid_keys = [a.value for a in agent_enum] # type: ignore
+    if agent_key not in valid_keys:
+        agent_key = agent_enum.FALLBACK# type: ignore
 
-    # Defensive check to ensure the agent exists
-    valid_agent_keys = [agent.value for agent in Agent]
-    if agent_key not in valid_agent_keys:
-        agent_key = Agent.FALLBACK
+    return agent_enum(agent_key) # type: ignore
 
-    return Agent(agent_key)
 
 if __name__ == "__main__":
     pass
