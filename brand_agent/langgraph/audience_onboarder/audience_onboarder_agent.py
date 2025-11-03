@@ -62,8 +62,8 @@ def verify_role(state: AgentState):
         }
     # TODO db write
     return {
-        "current_step": Step.ASK_CONTACT.value,
-        "messages": state["messages"] + [AIMessage(content="That is a valid role. Thank you!")]
+        "current_step": Step.VERIFY_CONTACT.value,
+        "messages": state["messages"] + [AIMessage(content="That is a valid role. Thank you!\nWhat is your contact information?")]
     }
 
 def ask_contact(state: AgentState):
