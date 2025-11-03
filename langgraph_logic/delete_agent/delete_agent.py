@@ -9,7 +9,6 @@ def delete_agent(state: AgentState):
     """Initial entry point for the Delete Agent, it will determine the next step to display to the user"""
     current_step = state.get("current_step")
     is_valid_step = current_step in [s.value for s in Step]
-    print(f"Current step: {current_step}")
 
     if not current_step or not is_valid_step:
         # We could check what information we already have about the user at this point then route them properly
