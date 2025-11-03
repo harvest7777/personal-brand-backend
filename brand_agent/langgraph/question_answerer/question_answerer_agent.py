@@ -65,7 +65,7 @@ if __name__ == "__main__":
     from pprint import pprint
     graph = build_question_answerer_graph()
     new_chat: AgentState = initialize_agent_state("user123")
-    new_chat["messages"] = [HumanMessage(content="What is my name?")]
+    new_chat["messages"] = [HumanMessage(content="can he code")]
     result = graph.invoke(new_chat)
     pprint(result, indent=2)
 
