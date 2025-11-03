@@ -10,7 +10,7 @@ def user_wants_to_exit_flow(state: AgentState) -> bool:
     based on the latest message in the context of a running workflow.
     """
     messages = state["messages"]
-    recent_context = messages[-5:]  # Use the last 5 messages for context
+    recent_context = messages[-1:]  # Use the last 5 messages for context
 
     prompt = (
         "You are a smart assistant monitoring if a user wants to exit or stop their agent workflow.\n"

@@ -14,7 +14,7 @@ from langgraph_logic.delete_agent.delete_agent import build_delete_graph
 # --- Intent Router ---
 def intent_router(state: AgentState):
     if user_wants_to_exit_flow(state):
-        return {"current_agent": "END", "current_step": "", "messages": [AIMessage(content="Gotcha, goodbye!")]}
+        return {"current_agent": Agent.END_AGENT.value, "current_step": ""}
 
     # Continuing where we left off, user is already working with an agent and is in some step
     if "current_agent" in state and state["current_agent"] in [agent.value for agent in Agent]:
@@ -22,9 +22,13 @@ def intent_router(state: AgentState):
 
     # New conversation or the user has exited one of the other agents 
     classified_agent = classify_intent(state, Agent, AGENT_DESCRIPTIONS)
+    print("Classified agent: ", classified_agent)
 
     return {"current_agent": classified_agent.value}
 
+
+def end_agent(state: AgentState):
+    return {"current_agent": "", "current_step": "", "messages": [AIMessage(content="Gotcha, goodbye!")]}
 
 def fallback_agent(state: AgentState):
     default_message = """
@@ -34,13 +38,14 @@ def fallback_agent(state: AgentState):
     return {
         "messages": [AIMessage(content=default_message)],
         "current_agent": "",
-        "current_step": 1
+        "current_step": ""
     }
 
 # --- Build Graph ---
 def build_main_graph():
     graph = StateGraph(AgentState)
     graph.add_node(intent_router)
+    graph.add_node(end_agent)
 
     github_agent = build_github_graph()
     onboarding_agent = build_onboarding_graph()
@@ -64,7 +69,6 @@ def build_main_graph():
         lambda state: state["current_agent"],
         {
             **{agent.value: agent.value for agent in Agent},
-            "END": END,
         },
     )
 
