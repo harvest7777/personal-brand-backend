@@ -4,17 +4,20 @@ from brand_agent.brand_agent_helpers import *
 from brand_agent.brand_agent_helpers import *
 from brand_agent.langgraph.agent_state_model import BrandAgentState, initialize_agent_state
 from brand_agent.langgraph.audience_onboarder.audience_onboarder_steps import Step
-from brand_agent.langgraph.audience_onboarder.audience_helpers import is_valid_name, extract_name, is_valid_contact, extract_contact, is_valid_role, extract_role
+from brand_agent.langgraph.audience_onboarder.audience_helpers import is_valid_name, extract_name, is_valid_contact, extract_contact, is_valid_role, extract_role, get_milestone_step_statuses, get_current_step, get_pretty_milestone_step_statuses
 from langgraph_logic.shared_clients.supabase_client import supabase
 
 def audience_onboarder_agent(state: BrandAgentState):
     """Initial entry point for the Audience Onboarder Agent, it will determine the next step to display to the user"""
+
     current_step = state.get("current_step")
     is_valid_step = current_step in [s.value for s in Step]
 
     if not current_step or not is_valid_step:
-        # Ask name step will be our fallback
-        current_step = Step.ASK_NAME.value
+        # We could check what information we already have about the user at this point then route them properly
+        inferred_step = get_current_step(get_milestone_step_statuses(state["asi_one_id"], state["brand_agent_id"]))
+        current_step = inferred_step.value
+
     return {
         "current_step": current_step,
         "messages": state["messages"]
@@ -37,6 +40,7 @@ def verify_name(state: BrandAgentState):
             "messages": state["messages"] + [AIMessage(content="That is not a valid name. Please try again.")]
         }
     
+    name = extract_name(user_input)
     # This needs the personal brand agent id from the state
     # So we can link a user (their asi one id) to the current personal brand
     # This is so we can have a unique profile for each user PER personal brand they're talking to
@@ -44,7 +48,7 @@ def verify_name(state: BrandAgentState):
     # We want to upsert using a compound unique constraint on audience_asi_one_id and personal_brand_agent_id
     supabase.table("audience_profiles").upsert(
         {
-            "name": user_input,
+            "name": name,
             "personal_brand_agent_id": state["brand_agent_id"],
             "audience_asi_one_id": state["asi_one_id"],  # this is the asi one id of the current user chatting with the agent
         },
@@ -62,6 +66,7 @@ def ask_role(state: BrandAgentState):
         "current_step": Step.VERIFY_ROLE.value,
         "messages": state["messages"] + [AIMessage(content="What is your role?")]
     }
+
 def verify_role(state: BrandAgentState):
     """Verify the user's role"""
     user_input = str(state["messages"][-1].content)
@@ -131,6 +136,15 @@ def fallback(state: BrandAgentState):
         "messages": state["messages"] + [AIMessage(content=default_message)]
     }
 
+def complete(state: BrandAgentState):
+    """Complete step for the Audience Onboarder Agent"""
+
+    pretty_statuses = get_pretty_milestone_step_statuses(get_milestone_step_statuses(state["asi_one_id"], state["brand_agent_id"]))
+    return {
+        "current_step": Step.COMPLETE.value,
+        "current_agent": "",
+        "messages": state["messages"] + [AIMessage(content=f"Thank you for onboarding!\n\nYour onboarding status:\n{pretty_statuses}")]
+    }
 def build_audience_onboarder_graph():
     graph = StateGraph(BrandAgentState)
 
@@ -164,7 +178,7 @@ def debugprint(state):
     print(f"last_message: {state['messages'][-1].content}")
     print("=" * 40 + "\n")
 
-if __name__ == "__main__":
+def input_loop():
     graph = build_audience_onboarder_graph()
     new_state = initialize_agent_state("user123", "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7")
     new_state["messages"] = [HumanMessage(content="hello")]
@@ -180,3 +194,6 @@ if __name__ == "__main__":
         new_state = result
 
         debugprint(result)
+
+if __name__ == "__main__":
+    input_loop()

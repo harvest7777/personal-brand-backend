@@ -135,6 +135,3 @@ def build_onboarding_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_onboarding_graph()
-    new_chat: AgentState = {"asi_one_id": "user123", "current_step": "", "current_agent": "", "messages": [HumanMessage(content="github")]}
-    result = graph.invoke(new_chat)
-    pprint(result, indent=2)

@@ -8,3 +8,4 @@ class Step(Enum):
     ASK_CONTACT = "ask_contact"
     VERIFY_CONTACT = "verify_contact"
     FALLBACK = "fallback"   
+    COMPLETE = "complete"

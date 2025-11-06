@@ -1,6 +1,44 @@
 from langgraph_logic.shared_clients.llm_client import shared_llm
 from langchain_core.messages import HumanMessage
+from brand_agent.langgraph.audience_onboarder.audience_onboarder_steps import Step
+from langgraph_logic.shared_clients.supabase_client import supabase
 
+def get_milestone_step_statuses(asi_one_id: str, brand_agent_id: str) -> dict[Step, bool]:
+    """Get the current step of the onboarding process for the given ASI:One ID"""
+    name_verified = False
+    role_verified = False
+    contact_verified = False
+
+    response = supabase.table("audience_profiles").select("*").eq("audience_asi_one_id", asi_one_id).eq("personal_brand_agent_id", brand_agent_id).execute()
+
+    if response.data and len(response.data) > 0:
+        name_verified = response.data[0]["name"] is not None and response.data[0]["name"] != ""  # type: ignore
+        role_verified = response.data[0]["role"] is not None and response.data[0]["role"] != ""  # type: ignore
+        contact_verified = response.data[0]["contact"] is not None and response.data[0]["contact"] != ""  # type: ignore
+
+    return {
+        Step.VERIFY_NAME: name_verified,
+        Step.VERIFY_ROLE: role_verified,
+        Step.VERIFY_CONTACT: contact_verified,
+    }
+
+def get_current_step(milestone_step_completed: dict[Step, bool]) -> Step:
+    if not milestone_step_completed[Step.VERIFY_NAME]:
+        return Step.ASK_NAME
+    if not milestone_step_completed[Step.VERIFY_ROLE]:
+        return Step.ASK_ROLE
+    if not milestone_step_completed[Step.VERIFY_CONTACT]:
+        return Step.ASK_CONTACT
+
+    return Step.COMPLETE
+
+def get_pretty_milestone_step_statuses(milestone_step_completed: dict[Step, bool]) -> str:
+    milestone_steps = [Step.VERIFY_NAME, Step.VERIFY_ROLE, Step.VERIFY_CONTACT]
+    pretty_statuses = [
+        f"{'✅' if milestone_step_completed[milestone_step] else '⬜️'}  {milestone_step.value.replace('_', ' ').title()}"
+        for milestone_step in milestone_steps
+    ]
+    return "\n".join(pretty_statuses)
 
 def is_valid_name(user_input: str) -> bool:
     """Check if the user's message is an answer to 'What is your full name?'"""
@@ -102,7 +140,8 @@ def extract_role(user_input: str):
     extracted_role = response.content.strip()  # type: ignore
     return extracted_role
 
-if __name__ == "__main__":
+
+def test_audience_helpers():
     print("=" * 60)
     print("Testing is_valid_name()")
     print("=" * 60)
@@ -214,3 +253,6 @@ if __name__ == "__main__":
     print("=" * 60)
     print("All tests completed!")
     print("=" * 60)
+
+if __name__ == "__main__":
+    print(get_milestone_step_statuses("user123", "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7"))
