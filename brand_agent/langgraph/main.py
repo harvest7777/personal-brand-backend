@@ -6,6 +6,7 @@ from brand_agent.langgraph.question_answerer.question_answerer_agent import buil
 from brand_agent.langgraph.brand_agent_definitions import Agent, AGENT_DESCRIPTIONS
 from langgraph_logic.shared_clients.supabase_client import supabase
 from brand_agent.brand_agent_helpers import get_asi_one_id_from_brand_agent_id
+from brand_agent.langgraph.audience_onboarder.audience_onboarder_agent import build_audience_onboarder_graph
 
 # --- Intent Router ---
 def intent_router(state: BrandAgentState):
@@ -45,8 +46,10 @@ def build_main_graph():
     graph.add_node(intent_router)
 
     question_answerer_agent = build_question_answerer_graph()
+    audience_onboarder_agent = build_audience_onboarder_graph()
 
     graph.add_node(Agent.QUESTION_ANSWERER.value, question_answerer_agent)
+    graph.add_node(Agent.AUDIENCE_ONBOARDER.value, audience_onboarder_agent)
     graph.add_node(Agent.FALLBACK.value, fallback_agent)
 
     graph.add_edge(START, "intent_router")
