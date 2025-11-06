@@ -1,11 +1,10 @@
 from langchain_core.messages import HumanMessage, AIMessage
-from langchain_core.load import dumps, loads
 from langgraph.graph import StateGraph, START, END
 from brand_agent.brand_agent_helpers import *
 from brand_agent.brand_agent_helpers import *
 from brand_agent.langgraph.agent_state_model import BrandAgentState, initialize_agent_state
 from brand_agent.langgraph.audience_onboarder.audience_onboarder_steps import Step
-from langgraph_logic.onboarding_agent.onboarding_helpers import is_valid_name
+from brand_agent.langgraph.audience_onboarder.audience_helpers import is_valid_name, extract_name, is_valid_contact, extract_contact, is_valid_role, extract_role
 from langgraph_logic.shared_clients.supabase_client import supabase
 
 def audience_onboarder_agent(state: BrandAgentState):
@@ -42,12 +41,16 @@ def verify_name(state: BrandAgentState):
     # So we can link a user (their asi one id) to the current personal brand
     # This is so we can have a unique profile for each user PER personal brand they're talking to
 
-    supabase.table("audience_profiles").upsert({
-        "name": user_input,
-        "personal_brand_agent_id": state["brand_agent_id"],
-        "audience_asi_one_id": state["asi_one_id"], #this is the asi one id of the current user chatting with the agent
-    }).execute()
-    
+    # We want to upsert using a compound unique constraint on audience_asi_one_id and personal_brand_agent_id
+    supabase.table("audience_profiles").upsert(
+        {
+            "name": user_input,
+            "personal_brand_agent_id": state["brand_agent_id"],
+            "audience_asi_one_id": state["asi_one_id"],  # this is the asi one id of the current user chatting with the agent
+        },
+        on_conflict="audience_asi_one_id,personal_brand_agent_id"  # This ensures the upsert uses this composite key
+    ).execute()
+
     return {
         "current_step": Step.VERIFY_ROLE.value,
         "messages": state["messages"] + [AIMessage(content="That is a valid name. Thank you!\nWhat is your role?")]
@@ -62,14 +65,23 @@ def ask_role(state: BrandAgentState):
 def verify_role(state: BrandAgentState):
     """Verify the user's role"""
     user_input = str(state["messages"][-1].content)
-    # valid_role = is_valid_role(user_input)
-    valid_role = True
+    valid_role = is_valid_role(user_input)
+
     if not valid_role:
         return {
             "current_step": Step.VERIFY_ROLE.value,
             "messages": state["messages"] + [AIMessage(content="That is not a valid role. Please try again.")]
         }
-    # TODO db write
+
+    role = extract_role(user_input)
+    supabase.table("audience_profiles").upsert(
+        {
+            "role": role,
+            "personal_brand_agent_id": state["brand_agent_id"],
+            "audience_asi_one_id": state["asi_one_id"], #this is the asi one id of the current user chatting with the agent
+        },
+        on_conflict="audience_asi_one_id,personal_brand_agent_id"  # This ensures the upsert uses this composite key
+    ).execute()
     return {
         "current_step": Step.VERIFY_CONTACT.value,
         "messages": state["messages"] + [AIMessage(content="That is a valid role. Thank you!\nWhat is your contact information?")]
@@ -85,14 +97,23 @@ def ask_contact(state: BrandAgentState):
 def verify_contact(state: BrandAgentState):
     """Verify the user's contact information"""
     user_input = str(state["messages"][-1].content)
-    # valid_contact = is_valid_contact(user_input)
-    valid_contact = True
-    # TODO db write
+    valid_contact = is_valid_contact(user_input)
+
     if not valid_contact:
         return {
             "current_step": Step.VERIFY_CONTACT.value,
             "messages": state["messages"] + [AIMessage(content="That is not a valid contact information. Please try again.")]
         }
+
+    contact = extract_contact(user_input)
+    supabase.table("audience_profiles").upsert(
+        {
+            "contact": contact,
+            "personal_brand_agent_id": state["brand_agent_id"],
+            "audience_asi_one_id": state["asi_one_id"], #this is the asi one id of the current user chatting with the agent
+        },
+        on_conflict="audience_asi_one_id,personal_brand_agent_id"  # This ensures the upsert uses this composite key
+    ).execute()
     return {
         "current_step": "",
         "current_agent": "",
