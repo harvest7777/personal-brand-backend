@@ -1,10 +1,7 @@
-from uagents_core.contrib.protocols.chat import ChatMessage, MetadataContent, TextContent
-from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
-from langgraph_logic.models import AgentState
 from utils.data_serialization_helpers import *
 from langchain_core.load import dumps, loads
 
-def get_most_recent_state_from_agent_db(chat_id: str, ctx) -> AgentState | None:
+def get_most_recent_state_from_agent_db(chat_id: str, ctx):
     """Fetches the most recent AgentState from the agent's db storage.""" 
     chat_data = ctx.storage.get(chat_id)
     if chat_data is None:

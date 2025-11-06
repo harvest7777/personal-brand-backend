@@ -7,6 +7,7 @@ from langgraph_logic.models import *
 from brand_agent.langgraph.audience_onboarder.audience_onboarder_steps import Step
 from langgraph_logic.models import initialize_agent_state
 from langgraph_logic.onboarding_agent.onboarding_helpers import is_valid_name
+from langgraph_logic.shared_clients.supabase_client import supabase
 
 def audience_onboarder_agent(state: AgentState):
     """Initial entry point for the Audience Onboarder Agent, it will determine the next step to display to the user"""
@@ -37,8 +38,18 @@ def verify_name(state: AgentState):
             "current_step": Step.VERIFY_NAME.value,
             "messages": state["messages"] + [AIMessage(content="That is not a valid name. Please try again.")]
         }
+    
+    # This needs the personal brand agent id from the state
+    # So we can link a user (their asi one id) to the current personal brand
+    # This is so we can have a unique profile for each user PER personal brand they're talking to
+
 
     # TODO db write
+    # supabase.table("audience_profiles").upsert({
+    #     "name": user_input,
+    #     "personal_brand_agent_id": state["current_agent"],
+    # }).execute()
+    
     return {
         "current_step": Step.VERIFY_ROLE.value,
         "messages": state["messages"] + [AIMessage(content="That is a valid name. Thank you!\nWhat is your role?")]

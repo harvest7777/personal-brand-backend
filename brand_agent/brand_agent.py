@@ -1,8 +1,10 @@
 from datetime import datetime
-
-from langchain_core.messages import human
+from brand_agent.langgraph.main import build_main_graph
+from langchain_core.load import dumps
 from brand_agent.brand_agent_helpers import *
 from utils.chat_helpers import *
+from utils.db_helpers import get_most_recent_state_from_agent_db
+from brand_agent.langgraph.agent_state_model import initialize_agent_state
 from uuid import uuid4
 import os
 from chroma.chroma_helpers import *
@@ -30,6 +32,7 @@ agent = Agent(
 fund_agent_if_low(str(agent.wallet.address()))
 
 protocol = Protocol(spec=chat_protocol_spec)
+graph = build_main_graph()
 
 @protocol.on_message(ChatMessage)
 async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
@@ -53,14 +56,16 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
         return
     # endregion
 
-    # region Querying the database for the most relevant facts and generating a response
-    # TODO get this dynamically, this is the agent (user id) that is tied to this brand agent
-    print(human_input)
-    asi_one_id = get_asi_one_id_from_brand_agent_id(agent.address)
-    ctx.logger.info(f"ASI:One ID: {asi_one_id}")
-    facts = get_most_relevant_facts(asi_one_id, human_input, 3)
-    ctx.logger.info(f"Facts: {facts}")
-    ai_response = answer_query_with_facts(facts, human_input, llm)
+    # region Initializing the langgraph state, invoking the graph, then updating the state
+    current_state = get_most_recent_state_from_agent_db(chat_id, ctx)
+    if current_state is None:
+        current_state = initialize_agent_state(sender, agent.address)
+
+    current_state["messages"].append(HumanMessage(content=human_input))
+    result = graph.invoke(current_state)
+    json_result = dumps(result)
+    ai_response = result["messages"][-1].content
+    ctx.storage.set(chat_id, json_result)
     # endregion
 
     # region Sending the response back to the user through ASI:One

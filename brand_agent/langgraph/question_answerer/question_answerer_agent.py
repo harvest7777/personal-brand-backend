@@ -1,15 +1,14 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from brand_agent.brand_agent_helpers import *
-from brand_agent.langgraph.brand_agent_definitions import Agent
 from brand_agent.brand_agent_helpers import *
-from langgraph_logic.models import *
+from brand_agent.langgraph.agent_state_model import BrandAgentState
 from brand_agent.langgraph.question_answerer.question_answerer_steps import Step
 from langgraph_logic.models import initialize_agent_state
 from langgraph_logic.shared_clients.llm_client import shared_llm
 from chroma.chroma_helpers import get_most_relevant_facts
 
-def question_answerer_agent(state: AgentState):
+def question_answerer_agent(state: BrandAgentState):
     """Initial entry point for the Question Answerer Agent, it will determine the next step to display to the user"""
     current_step = state.get("current_step")
     is_valid_step = current_step in [s.value for s in Step]
@@ -22,10 +21,11 @@ def question_answerer_agent(state: AgentState):
         "messages": state["messages"]
     }
 
-def answer_question(state: AgentState):
+def answer_question(state: BrandAgentState):
     """Answer the question"""
-
-    asi_one_id = get_asi_one_id_from_brand_agent_id("agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx")
+    brand_agent_id = state["brand_agent_id"]
+    asi_one_id = get_asi_one_id_from_brand_agent_id(brand_agent_id)
+    print(asi_one_id, brand_agent_id)
     human_input = str(state["messages"][-1].content)
     facts = get_most_relevant_facts(asi_one_id, human_input, 3)
     ai_response = answer_query_with_facts(facts, human_input, shared_llm)
@@ -36,7 +36,7 @@ def answer_question(state: AgentState):
 
 
 def build_question_answerer_graph():
-    graph = StateGraph(AgentState)
+    graph = StateGraph(BrandAgentState)
 
     graph.add_node(question_answerer_agent)
     for step in Step:
@@ -64,8 +64,4 @@ def build_question_answerer_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_question_answerer_graph()
-    new_chat: AgentState = initialize_agent_state("user123")
-    new_chat["messages"] = [HumanMessage(content="can he code")]
-    result = graph.invoke(new_chat)
-    pprint(result, indent=2)
 
