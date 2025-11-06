@@ -3,13 +3,12 @@ from langchain_core.load import dumps, loads
 from langgraph.graph import StateGraph, START, END
 from brand_agent.brand_agent_helpers import *
 from brand_agent.brand_agent_helpers import *
-from langgraph_logic.models import *
+from brand_agent.langgraph.agent_state_model import BrandAgentState, initialize_agent_state
 from brand_agent.langgraph.audience_onboarder.audience_onboarder_steps import Step
-from langgraph_logic.models import initialize_agent_state
 from langgraph_logic.onboarding_agent.onboarding_helpers import is_valid_name
 from langgraph_logic.shared_clients.supabase_client import supabase
 
-def audience_onboarder_agent(state: AgentState):
+def audience_onboarder_agent(state: BrandAgentState):
     """Initial entry point for the Audience Onboarder Agent, it will determine the next step to display to the user"""
     current_step = state.get("current_step")
     is_valid_step = current_step in [s.value for s in Step]
@@ -22,14 +21,14 @@ def audience_onboarder_agent(state: AgentState):
         "messages": state["messages"]
     }
 
-def ask_name(state: AgentState):
+def ask_name(state: BrandAgentState):
     """Ask the user for their name"""
     return {
         "current_step": Step.VERIFY_NAME.value,
         "messages": state["messages"] + [AIMessage(content="What is your name?")]
     }
 
-def verify_name(state: AgentState):
+def verify_name(state: BrandAgentState):
     """Verify the user's name"""
     user_input = str(state["messages"][-1].content)
     valid_name = is_valid_name(user_input)
@@ -43,25 +42,24 @@ def verify_name(state: AgentState):
     # So we can link a user (their asi one id) to the current personal brand
     # This is so we can have a unique profile for each user PER personal brand they're talking to
 
-
-    # TODO db write
-    # supabase.table("audience_profiles").upsert({
-    #     "name": user_input,
-    #     "personal_brand_agent_id": state["current_agent"],
-    # }).execute()
+    supabase.table("audience_profiles").upsert({
+        "name": user_input,
+        "personal_brand_agent_id": state["brand_agent_id"],
+        "audience_asi_one_id": state["asi_one_id"], #this is the asi one id of the current user chatting with the agent
+    }).execute()
     
     return {
         "current_step": Step.VERIFY_ROLE.value,
         "messages": state["messages"] + [AIMessage(content="That is a valid name. Thank you!\nWhat is your role?")]
     }
 
-def ask_role(state: AgentState):
+def ask_role(state: BrandAgentState):
     """Ask the user for their role"""
     return {
         "current_step": Step.VERIFY_ROLE.value,
         "messages": state["messages"] + [AIMessage(content="What is your role?")]
     }
-def verify_role(state: AgentState):
+def verify_role(state: BrandAgentState):
     """Verify the user's role"""
     user_input = str(state["messages"][-1].content)
     # valid_role = is_valid_role(user_input)
@@ -77,14 +75,14 @@ def verify_role(state: AgentState):
         "messages": state["messages"] + [AIMessage(content="That is a valid role. Thank you!\nWhat is your contact information?")]
     }
 
-def ask_contact(state: AgentState):
+def ask_contact(state: BrandAgentState):
     """Ask the user for their contact information"""
     return {
         "current_step": Step.VERIFY_CONTACT.value,
         "messages": state["messages"] + [AIMessage(content="What is your contact information?")]
     }
 
-def verify_contact(state: AgentState):
+def verify_contact(state: BrandAgentState):
     """Verify the user's contact information"""
     user_input = str(state["messages"][-1].content)
     # valid_contact = is_valid_contact(user_input)
@@ -101,7 +99,7 @@ def verify_contact(state: AgentState):
         "messages": state["messages"] + [AIMessage(content="Thank you for onboarding!")]
     }
 
-def fallback(state: AgentState):
+def fallback(state: BrandAgentState):
     """Fallback step for the Audience Onboarder Agent"""
     default_message = """
     [Unclear Intent]
@@ -113,7 +111,7 @@ def fallback(state: AgentState):
     }
 
 def build_audience_onboarder_graph():
-    graph = StateGraph(AgentState)
+    graph = StateGraph(BrandAgentState)
 
     graph.add_node(audience_onboarder_agent)
     for step in Step:
@@ -147,14 +145,14 @@ def debugprint(state):
 
 if __name__ == "__main__":
     graph = build_audience_onboarder_graph()
-    new_state = initialize_agent_state("user123")
+    new_state = initialize_agent_state("user123", "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7")
     new_state["messages"] = [HumanMessage(content="hello")]
     result = graph.invoke(new_state)
 
     while True:
         print(result["messages"][-1].content)
         answer = input("> ")
-        new_state = AgentState(**result)
+        new_state = BrandAgentState(**result)
         new_state["messages"].append(HumanMessage(content=answer))
 
         result = graph.invoke(new_state)
