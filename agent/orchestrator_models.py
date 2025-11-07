@@ -7,3 +7,10 @@ class ForwardConnectionLink(Model):
 
 class ConnectionLinkForwardedResponse(Model):
     success: bool
+
+class DeleteData(Model):
+    asi_one_id: str
+    data_ids_to_delete: list[str]
+
+class DeleteDataResponse(Model):
+    success: bool

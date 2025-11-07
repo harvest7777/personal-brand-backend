@@ -3,7 +3,13 @@ from langgraph.graph import StateGraph, START, END
 from langgraph_logic.models import *
 from langgraph_logic.agents import Agent
 from langgraph_logic.delete_agent.delete_types import Step
-from langgraph_logic.delete_agent.delete_helpers import is_valid_delete_request, is_affirmative_response
+from langgraph_logic.delete_agent.delete_helpers import is_valid_delete_request, to_delete_from_user_input, select_ids_to_delete, delete_data
+from chroma.shared_chroma_client import collection
+from chroma.chroma_models import ChromaDocument
+from chroma.chroma_constants import Source
+import uuid
+from datetime import datetime
+
 
 def delete_agent(state: AgentState):
     """Initial entry point for the Delete Agent, it will determine the next step to display to the user"""
@@ -34,8 +40,6 @@ def confirm_delete(state: AgentState):
 
     # Get the described data to delete
     user_input = state["messages"][-1].content
-    print(f"User input: {user_input}")
-
 
     if not user_input or not is_valid_delete_request(user_input): # type: ignore
         return {
@@ -44,26 +48,46 @@ def confirm_delete(state: AgentState):
             "messages": state["messages"] + [AIMessage(content=f"That doesn't seem right... Please describe the data you want to delete.")]
         }
 
-    # to_delete = to_delete_from_user_input(user_input)
-    to_delete = "WILL QUERY DB FOR DATA TO DELETE LATER"
+    to_delete = to_delete_from_user_input(user_input, state["asi_one_id"]) # type: ignore
+    if not to_delete:
+        return {
+            "current_step": Step.DESCRIBE_DATA_TO_DELETE.value,
+            "current_agent": Agent.DELETE.value,
+            "messages": state["messages"] + [AIMessage(content=f"No data found to delete. Please try describing other data.")]
+        }
+
+    state["delete_agent_state"]["data_ids_to_delete"] = [doc[1] for doc in to_delete]
+
+    pretty_to_delete = "\n\n" + "\n\n".join([f"Document: {doc[0]}\n\n\nID: {doc[1]}" for doc in to_delete])
 
     return {
         "current_step": Step.COMPLETE.value,
         "current_agent": Agent.DELETE.value,
-        "messages": state["messages"] + [AIMessage(content=f"The following data will be deleted: {to_delete}\n\nAre you sure?")]
+        "messages": state["messages"] + [AIMessage(content=f"The following was found: {pretty_to_delete}\n\nPlease list the ids of the data you want to delete or 'all' to delete all of them.")]
     }
 
 def complete(state: AgentState):
-    """The deletion process has been completed"""
+    """Complete the deletion process"""
 
     user_input = state["messages"][-1].content
+    data_ids_to_select_from = state["delete_agent_state"]["data_ids_to_delete"]
 
-    if not is_affirmative_response(user_input): # type: ignore
+    """
+    we first check fi the suer wants to delete all of them or just some of them
+    pass the lsit of ids into a get_data_ids_to_delete function as well as the user's input
+    """
+    to_delete = select_ids_to_delete(data_ids_to_select_from, user_input) # type: ignore
+
+    if not to_delete:
         return {
-            "current_step": "",
+            "current_step":"",
             "current_agent": "",
-            "messages": state["messages"] + [AIMessage(content=f"The deletion process has been aborted.")]
+            "messages": state["messages"] + [AIMessage(content=f"Aborted.")]
         }
+
+    # actually perform the deletions
+    print("to_delete", to_delete)
+    delete_data(to_delete)
 
     return {
         "current_step": "",
@@ -97,10 +121,33 @@ def build_delete_graph():
     return graph.compile()
 
 
+
+def add_test_data(data: str):
+    new_doc = ChromaDocument(
+        id=str(uuid.uuid4()),
+        asi_one_id="agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f",
+        document=data,
+        source=Source.RESUME.value,
+        time_logged=datetime.now().astimezone()
+    )
+
+    # Insert into Chroma
+    collection.add(
+        ids=[new_doc.id],
+        documents=[new_doc.document],
+        metadatas=[{
+            "source": new_doc.source,
+            "asi_one_id": new_doc.asi_one_id,
+            "time_logged": new_doc.time_logged.isoformat()
+        }]
+    )
+
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_delete_graph()
-    new_chat: AgentState = {"asi_one_id": "user123", "current_step": "", "current_agent": "", "messages": [HumanMessage(content="delete")]}
-    result = graph.invoke(new_chat)
-    pprint(result, indent=2)
 
+    new_chat: AgentState = initialize_agent_state("agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f")
+    result = graph.invoke(new_chat)
+    result["messages"].append(HumanMessage(content="bazalu"))
+    result = graph.invoke(AgentState(**result))
+    print("result", result)

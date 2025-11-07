@@ -88,12 +88,24 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     # endregion
 
+@agent.on_rest_post("/delete_data", DeleteData, DeleteDataResponse)
+async def handle_delete_data(ctx: Context, req: DeleteData) -> DeleteDataResponse:
+    ctx.logger.info("Received POST request")
+    ctx.logger.info(req)
+    asi_one_id = req.asi_one_id
+    await ctx.send(asi_one_id, ChatMessage(
+        content=[
+            TextContent(type="text", text=f"Data deleted"),
+        ]
+    ))
 
+    return DeleteDataResponse(success=True)
 # need to define req and respo
 @agent.on_rest_post("/connection_success", ForwardConnectionLink, ConnectionLinkForwardedResponse)
 async def handle_post(ctx: Context, req: ForwardConnectionLink) -> ConnectionLinkForwardedResponse:
     ctx.logger.info("Received POST request")
-    await ctx.send("agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f", ChatMessage(
+    asi_one_id = req.asi_one_id
+    await ctx.send(asi_one_id, ChatMessage(
         content=[
             TextContent(type="text", text=f"Connection link forwarded to {req.redirect_url}"),
         ]
