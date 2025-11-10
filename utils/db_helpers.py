@@ -6,4 +6,5 @@ def get_most_recent_state_from_agent_db(chat_id: str, ctx):
     chat_data = ctx.storage.get(chat_id)
     if chat_data is None:
         return None
+    ctx.logger.info(f"Chat data: {chat_data}")
     return loads(chat_data)

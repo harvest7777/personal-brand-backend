@@ -40,7 +40,6 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
         ChatAcknowledgement(timestamp=datetime.now(), acknowledged_msg_id=msg.msg_id),
     )
 
-    ctx.logger.info(f"Received message: {msg}")
     # region Simple parsing input and getting chat metadata
     chat_id = get_chat_id_from_message(msg)
     human_input = get_human_input_from_message(msg)
@@ -62,12 +61,14 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     if current_state is None:
         current_state = initialize_agent_state(asi_one_id)
+        ctx.logger.info(f"initialized state: {current_state}")
 
     append_message_to_state(current_state, human_input)
 
     next_state = graph.invoke(current_state) # This will return a dict, NOT a state object
 
     json_result = dumps(next_state) # Has to be json to store in agent db
+    print(f"json state: {json_result}")
     ctx.storage.set(chat_id, json_result) # Save the new state to the DB
     # endregion
 

@@ -1,9 +1,9 @@
 from typing import Type
 from enum import Enum
 from langgraph_logic.shared_clients.llm_client import shared_llm
-from brand_agent.langgraph.agent_state_model import BrandAgentState
+from langgraph_logic.models import AgentState
 
-def user_wants_to_exit_flow(state: BrandAgentState) -> bool:
+def user_wants_to_exit_flow(state: AgentState) -> bool:
     """
     Uses LLM to check if the user wants to exit or stop the current agentic workflow,
     based on the latest message in the context of a running workflow.
@@ -30,7 +30,7 @@ def user_wants_to_exit_flow(state: BrandAgentState) -> bool:
 
     return answer == "True"
 
-def classify_intent(state: BrandAgentState, agent_enum: Type[Enum], agent_descriptions: dict) -> Enum:
+def classify_intent(state: AgentState, agent_enum: Type[Enum], agent_descriptions: dict) -> Enum:
     messages = state["messages"]
     recent_context = messages[-5:]
 

@@ -17,7 +17,7 @@ def intent_router(state: AgentState):
         return {"current_agent": Agent.END_AGENT.value, "current_step": ""}
 
     # Continuing where we left off, user is already working with an agent and is in some step
-    if "current_agent" in state and state["current_agent"] in [agent.value for agent in Agent]:
+    if state["current_agent"] in [agent.value for agent in Agent]:
         return {"current_agent": state["current_agent"]}
 
     # New conversation or the user has exited one of the other agents 
@@ -32,7 +32,16 @@ def end_agent(state: AgentState):
 
 def fallback_agent(state: AgentState):
     default_message = """
-    Hm. I can't help you with that. As your personal brand ingester, I can...\n\n- Onboard you as a user\n- Deploy your personal brand agent\n- Ingest facts from your resume\n- Help you manage your data\n- Connect your LinkedIn\n- Connect your GitHub\n\nLet me know what you'd like to do!
+    Hm. I can't help you with that. As your personal brand ingester, I can...
+    \n
+    - Onboard you as a user
+    - Deploy your personal brand agent
+    - Ingest facts from your resume
+    - Help you manage your data
+    - Connect your LinkedIn
+    - Connect your GitHub 
+    \n 
+    Let me know what you'd like to do!
     """
     return {
         "messages": [AIMessage(content=default_message)],
