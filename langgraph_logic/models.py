@@ -1,59 +1,78 @@
 from langgraph.graph import MessagesState
 from pydantic import BaseModel
 from langchain_core.messages import AnyMessage
+from typing import Any
+from langchain_core.load.serializable import Serializable
+from langchain_core.load.dump import dumpd
+from langchain_core.load.load import load
 
 
-class GatherAgentState(BaseModel):
+class GatherAgentState(Serializable):
     current_topic: str
     current_question: str
 
+    @classmethod
+    def is_lc_serializable(cls) -> bool:
+        return True
+
     def __getitem__(self, key):
         return getattr(self, key)
 
     def __setitem__(self, key, value):
         setattr(self, key, value)
+    @classmethod
+    def from_json(cls, data: dict[str, Any]) -> "GatherAgentState":
+        return cls(**data)
 
 
 
-class DeleteAgentState(BaseModel):
+
+class DeleteAgentState(Serializable):
     data_ids_to_delete: list[str]
+    
+    @classmethod
+    def is_lc_serializable(cls) -> bool:
+        return True
+    
     def __getitem__(self, key):
         return getattr(self, key)
 
     def __setitem__(self, key, value):
         setattr(self, key, value)
+    @classmethod
+    def from_json(cls, data: dict[str, Any]) -> "DeleteAgentState":
+        return cls(**data)
 
 
-class AgentState(BaseModel):
+
+class AgentState(Serializable):
     asi_one_id: str
     current_agent: str
     current_step: str 
     gather_agent_state: GatherAgentState 
     delete_agent_state: DeleteAgentState
     messages: list[AnyMessage]
+    
+    @classmethod
+    def is_lc_serializable(cls) -> bool:
+        return True
+    
     def __getitem__(self, key):
         return getattr(self, key)
 
     def __setitem__(self, key, value):
         setattr(self, key, value)
 
-    def to_json(self) -> dict:
-        return {
-            "asi_one_id": self.asi_one_id,
-            "current_agent": self.current_agent,
-            "current_step": self.current_step,
-            "gather_agent_state": (
-                self.gather_agent_state.model_dump()
-                if hasattr(self.gather_agent_state, "model_dump")
-                else self.gather_agent_state.__dict__
-            ),
-            "delete_agent_state": (
-                self.delete_agent_state.model_dump()
-                if hasattr(self.delete_agent_state, "model_dump")
-                else self.delete_agent_state.__dict__
-            ),
-            "messages": getattr(self, "messages", []),
-        }
+    @classmethod
+    def from_json(cls, data: dict[str, Any]) -> "AgentState":
+        return cls(
+            asi_one_id=data["asi_one_id"],
+            current_agent=data["current_agent"],
+            current_step=data["current_step"],
+            gather_agent_state=GatherAgentState.from_json(data["gather_agent_state"]),
+            delete_agent_state=DeleteAgentState.from_json(data["delete_agent_state"]),
+            messages=data.get("messages", []),
+        )
 
 def initialize_agent_state(asi_one_id: str) -> AgentState:
     return AgentState(
@@ -64,5 +83,3 @@ def initialize_agent_state(asi_one_id: str) -> AgentState:
         delete_agent_state=DeleteAgentState(data_ids_to_delete=[]),
         messages=[]
     )
-
-
