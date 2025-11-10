@@ -51,8 +51,8 @@ def verify_name(state: AgentState):
 
     # Done with the onboarding flow 
     return {
-        "current_step": Step.ASK_RESUME.value,
-        "messages": state["messages"] + [AIMessage(content="Thanks! Your name has been recorded. When you're ready to move on to the next step, just send a message!")],
+        "current_step": Step.STORE_FACTS_FROM_RESUME.value,
+        "messages": state["messages"] + [AIMessage(content="Thanks! Your name has been recorded. Copy paste your resume so I can start building your profile. No need to worry about formatting, I can take care of it!")],
     }
 
 def invalid_step(state: AgentState):
@@ -93,7 +93,7 @@ def store_facts_from_resume(state: AgentState):
     return {
         "current_agent":"",
         "current_step": "",
-        "messages": state["messages"] + [AIMessage(content="Great, I just parsed your resume to store facts about you.")],
+        "messages": state["messages"] + [AIMessage(content="Great, I just parsed your resume to store facts about you. You're good to go!")],
     }
 
 def complete(state: AgentState):

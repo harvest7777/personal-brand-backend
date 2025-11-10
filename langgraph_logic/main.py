@@ -32,8 +32,7 @@ def end_agent(state: AgentState):
 
 def fallback_agent(state: AgentState):
     default_message = """
-    [Unclear Intent]
-    I am your personal brand assistant. I can help you manage your data, connect to your GitHub, LinkedIn, and more.
+    Hm. I can't help you with that. As your personal brand ingester, I can...\n\n- Onboard you as a user\n- Deploy your personal brand agent\n- Ingest facts from your resume\n- Help you manage your data\n- Connect your LinkedIn\n- Connect your GitHub\n\nLet me know what you'd like to do!
     """
     return {
         "messages": [AIMessage(content=default_message)],
