@@ -14,7 +14,7 @@ class Step(Enum):
 
 def deploy_agent(state: AgentState):
     """Initial entry point for the Deploy Agent, it will walk the user through the deployment process"""
-    current_step = state.get("current_step")
+    current_step = state["current_step"]
     is_valid_step = current_step in [s.value for s in Step]
 
     if not current_step or not is_valid_step:
@@ -67,7 +67,7 @@ def verify_agent_id(state: AgentState):
 def invalid_step(state: AgentState):
     return {
         "messages": state["messages"] + [
-            AIMessage(content=f"⚠️ Invalid step `{state.get('current_step')}`")
+            AIMessage(content=f"⚠️ Invalid step `{state['current_step']}`")
         ],
         "current_agent":"",
         "current_step": "",
@@ -104,6 +104,8 @@ def build_deploy_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_deploy_graph()
-    new_chat: AgentState = {"asi_one_id": "user123", "current_step": "verify_agent_id", "current_agent": "deploy_agent", "messages": [HumanMessage(content="My agent id is agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx")]}
+    new_chat = initialize_agent_state("user123")
+    new_chat["current_step"] = "verify_agent_id"
+    new_chat["messages"] = [HumanMessage(content="My agent id is agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx")]
     result = graph.invoke(new_chat)
     pprint(result, indent=2)

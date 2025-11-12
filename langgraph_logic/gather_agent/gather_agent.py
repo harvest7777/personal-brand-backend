@@ -5,7 +5,7 @@ from langgraph_logic.gather_agent.gather_steps import Step
 from langgraph_logic.gather_agent.gather_helpers import generate_question, is_valid_answer
 
 def gather_agent(state):
-    current_step = state.get("current_step")
+    current_step = state["current_step"]
     current_topic = state["gather_agent_state"]["current_topic"]
 
     is_valid_step = current_step in [s.value for s in Step]
@@ -38,27 +38,22 @@ def answer_question(state):
     valid = is_valid_answer(current_question, user_answer)
 
     if valid:
+        current_topic = state["gather_agent_state"]["current_topic"]
+        followup_question = generate_question(current_topic, state["messages"])
+
+        state["gather_agent_state"]["current_question"] = followup_question
+
         return {
-            "current_step": Step.GOOD_ANSWER.value,
+            "current_step": Step.ANSWER_QUESTION.value,
+            "messages": state["messages"] + [
+                AIMessage(content=f"That's great! Let's keep going.\n\n{followup_question}")
+            ]
         }
     else:
         return {
             "current_step": Step.ANSWER_QUESTION.value,
             "messages": state["messages"] + [AIMessage(content="I'm not sure what you mean. Please try again.")]
         }
-
-def good_answer(state):
-    current_topic = state["gather_agent_state"]["current_topic"]
-    followup_question = generate_question(current_topic, state["messages"])
-
-    state["gather_agent_state"]["current_question"] = followup_question
-
-    return {
-        "current_step": Step.ANSWER_QUESTION.value,
-        "messages": state["messages"] + [
-            AIMessage(content=f"That's great! Let's keep going.\n\n{followup_question}")
-        ]
-    }
 
 def build_gather_graph():
     graph = StateGraph(AgentState)
