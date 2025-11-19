@@ -1,8 +1,8 @@
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph import StateGraph, START, END
-from langgraph_agents.models import *
+from data_management_agent.models import *
 from enum import Enum
-from langgraph_agents.deploy_agent.deploy_helpers import *
+from data_management_agent.deploy_agent.deploy_helpers import *
 from shared_clients.llm_client import shared_llm
 from shared_clients.supabase_client import supabase
 

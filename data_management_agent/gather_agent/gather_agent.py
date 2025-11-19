@@ -1,8 +1,8 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
-from langgraph_agents.models import *
-from langgraph_agents.gather_agent.gather_steps import Step
-from langgraph_agents.gather_agent.gather_helpers import generate_question, is_valid_answer
+from data_management_agent.models import *
+from data_management_agent.gather_agent.gather_steps import Step
+from data_management_agent.gather_agent.gather_helpers import generate_question, is_valid_answer
 
 def gather_agent(state):
     current_step = state["current_step"]

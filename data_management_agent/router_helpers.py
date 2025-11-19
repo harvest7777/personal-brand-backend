@@ -1,7 +1,7 @@
 from typing import Type
 from enum import Enum
 from shared_clients.llm_client import shared_llm
-from langgraph_agents.models import AgentState
+from data_management_agent.models import AgentState
 
 def user_wants_to_exit_flow(state: AgentState) -> bool:
     """
