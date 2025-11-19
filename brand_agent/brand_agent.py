@@ -1,10 +1,10 @@
 from datetime import datetime
-from brand_agent.langgraph.main import build_main_graph
+from brand_agent.main import build_main_graph
 from langchain_core.load import dumps
 from brand_agent.brand_agent_helpers import *
 from utils.chat_helpers import *
 from utils.db_helpers import get_most_recent_state_from_agent_db
-from brand_agent.langgraph.agent_state_model import initialize_agent_state
+from brand_agent.agent_state_model import initialize_agent_state
 from uuid import uuid4
 import os
 from chroma.chroma_helpers import *

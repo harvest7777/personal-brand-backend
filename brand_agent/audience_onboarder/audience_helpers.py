@@ -1,6 +1,6 @@
 from shared_clients.llm_client import shared_llm
 from langchain_core.messages import HumanMessage
-from brand_agent.langgraph.audience_onboarder.audience_onboarder_steps import Step
+from brand_agent.audience_onboarder.audience_onboarder_steps import Step
 from shared_clients.supabase_client import supabase
 
 def get_milestone_step_statuses(asi_one_id: str, brand_agent_id: str) -> dict[Step, bool]:

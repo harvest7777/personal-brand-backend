@@ -1,12 +1,12 @@
 from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, AIMessage
-from brand_agent.langgraph.agent_state_model import BrandAgentState, initialize_agent_state
+from brand_agent.agent_state_model import BrandAgentState, initialize_agent_state
 from data_management_agent.router_helpers import *
-from brand_agent.langgraph.question_answerer.question_answerer_agent import build_question_answerer_graph
-from brand_agent.langgraph.brand_agent_definitions import Agent, AGENT_DESCRIPTIONS
+from brand_agent.question_answerer.question_answerer_agent import build_question_answerer_graph
+from brand_agent.brand_agent_definitions import Agent, AGENT_DESCRIPTIONS
 from shared_clients.supabase_client import supabase
 from brand_agent.brand_agent_helpers import get_asi_one_id_from_brand_agent_id
-from brand_agent.langgraph.audience_onboarder.audience_onboarder_agent import build_audience_onboarder_graph
+from brand_agent.audience_onboarder.audience_onboarder_agent import build_audience_onboarder_graph
 
 # --- Intent Router ---
 def intent_router(state: BrandAgentState):
@@ -14,6 +14,7 @@ def intent_router(state: BrandAgentState):
         return {"current_agent": "END", "current_step": "", "messages": [AIMessage(content="Gotcha, goodbye!")]}
 
     # Continuing where we left off, user is already working with an agent and is in some step
+    print(f"Current agent: {state['current_agent']}")
     if "current_agent" in state and state["current_agent"] in [agent.value for agent in Agent]:
         return {"current_agent": state["current_agent"]}
 
@@ -26,10 +27,13 @@ def intent_router(state: BrandAgentState):
 
 def fallback_agent(state: BrandAgentState):
     # TODO fetch the user's name from db for fallback
+
     brand_agent_id = state["brand_agent_id"]
     asi_one_id = get_asi_one_id_from_brand_agent_id(brand_agent_id)
+
     data = supabase.table("user_profiles").select("name").eq("asi_one_id", asi_one_id).execute()
     name = data.data[0]["name"] # type: ignore
+
     default_message = f"""
     [Unclear Intent]
     I am {name}'s personal brand agent. I can do my best to answer your questions on behalf of {name} and tailor my responses based on your role and preferences. Try asking a question or request to set your preferences!
@@ -73,7 +77,6 @@ if __name__ == "__main__":
     graph = build_main_graph()
     new_state: BrandAgentState = initialize_agent_state("user123", "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7")
     new_state["messages"] = [HumanMessage(content="can ryan code?")]
-    # new_state["messages"] = [HumanMessage(content="can ryan code?")]
     result = graph.invoke(new_state)
     print(result["messages"][-1].content)
 
