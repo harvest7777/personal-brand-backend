@@ -7,4 +7,4 @@ def get_most_recent_state_from_agent_db(chat_id: str, ctx):
     if chat_data is None:
         return None
     ctx.logger.info(f"Chat data: {chat_data}")
-    return loads(chat_data, valid_namespaces=["langgraph_logic"])
+    return loads(chat_data, valid_namespaces=["langgraph_agents"])

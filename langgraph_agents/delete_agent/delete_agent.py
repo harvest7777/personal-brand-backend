@@ -1,9 +1,9 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
-from langgraph_logic.models import *
-from langgraph_logic.agents import Agent
-from langgraph_logic.delete_agent.delete_types import Step
-from langgraph_logic.delete_agent.delete_helpers import is_valid_delete_request, to_delete_from_user_input, select_ids_to_delete, delete_data
+from langgraph_agents.models import *
+from langgraph_agents.agents import Agent
+from langgraph_agents.delete_agent.delete_types import Step
+from langgraph_agents.delete_agent.delete_helpers import is_valid_delete_request, to_delete_from_user_input, select_ids_to_delete, delete_data
 from chroma.shared_chroma_client import collection
 from chroma.chroma_models import ChromaDocument
 from chroma.chroma_constants import Source

@@ -1,8 +1,8 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
-from langgraph_logic.shared_clients.composio_client import *
-from langgraph_logic.models import *
-from langgraph_logic.linkedin_agent.linkedin_helpers import *
+from langgraph_agents.shared_clients.composio_client import *
+from langgraph_agents.models import *
+from langgraph_agents.linkedin_agent.linkedin_helpers import *
 
 def linkedin_agent(state: AgentState):
     """Initial entry point for the LinkedIn Agent, it will determine the next step to display to the user"""

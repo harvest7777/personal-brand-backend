@@ -1,10 +1,10 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from chroma.chroma_helpers import insert_resume_fact
-from langgraph_logic.shared_clients.supabase_client import supabase
-from langgraph_logic.models import *
-from langgraph_logic.onboarding_agent.onboarding_helpers import *
-from langgraph_logic.onboarding_agent.onboarding_types import Step
+from langgraph_agents.shared_clients.supabase_client import supabase
+from langgraph_agents.models import *
+from langgraph_agents.onboarding_agent.onboarding_helpers import *
+from langgraph_agents.onboarding_agent.onboarding_types import Step
 
 def onboarding_agent(state: AgentState):
     """Initial entry point for the Onboarding Agent, it will determine the next step to display to the user"""

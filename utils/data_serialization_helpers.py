@@ -1,4 +1,4 @@
-from langgraph_logic.models import *
+from langgraph_agents.models import *
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.messages import AnyMessage
 from database.agent_db_models import *

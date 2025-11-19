@@ -1,6 +1,6 @@
 from datetime import datetime
-from langgraph_logic.main import build_main_graph
-from langgraph_logic.models import * 
+from langgraph_agents.main import build_main_graph
+from langgraph_agents.models import * 
 from utils.data_serialization_helpers import *
 from utils.chat_helpers import *
 from utils.db_helpers import *
@@ -12,7 +12,7 @@ import os
 from dotenv import load_dotenv
 from uagents import Context, Protocol, Agent
 from agent.orchestrator_models import *
-from langgraph_logic.shared_clients.composio_client import *
+from langgraph_agents.shared_clients.composio_client import *
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
     ChatMessage,

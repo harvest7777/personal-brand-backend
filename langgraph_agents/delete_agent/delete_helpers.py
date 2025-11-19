@@ -1,5 +1,5 @@
 from langchain_core.messages import HumanMessage
-from langgraph_logic.shared_clients.llm_client import shared_llm
+from langgraph_agents.shared_clients.llm_client import shared_llm
 from chroma.shared_chroma_client import collection
 
 def is_valid_delete_request(user_input: str) -> bool:

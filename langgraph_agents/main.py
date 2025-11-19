@@ -1,15 +1,15 @@
 from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, AIMessage
-from langgraph_logic.models import *
-from langgraph_logic.github import build_github_graph
-from langgraph_logic.gather_agent.gather_agent import build_gather_graph
-from langgraph_logic.onboarding_agent.onboarding_agent import build_onboarding_graph
-from langgraph_logic.router_helpers import *
-from langgraph_logic.agents import *
+from langgraph_agents.models import *
+from langgraph_agents.github import build_github_graph
+from langgraph_agents.gather_agent.gather_agent import build_gather_graph
+from langgraph_agents.onboarding_agent.onboarding_agent import build_onboarding_graph
+from langgraph_agents.router_helpers import *
+from langgraph_agents.agents import *
 from utils.data_serialization_helpers import *
-from langgraph_logic.linkedin_agent.linkedin_agent import build_linkedin_graph
-from langgraph_logic.deploy_agent.deploy import build_deploy_graph
-from langgraph_logic.delete_agent.delete_agent import build_delete_graph
+from langgraph_agents.linkedin_agent.linkedin_agent import build_linkedin_graph
+from langgraph_agents.deploy_agent.deploy import build_deploy_graph
+from langgraph_agents.delete_agent.delete_agent import build_delete_graph
 
 # --- Intent Router ---
 def intent_router(state: AgentState):
