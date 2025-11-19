@@ -1,4 +1,4 @@
-import langgraph_agents.shared_clients.llm_client as llm_client
+import shared_clients.llm_client as llm_client
 from langchain_core.messages import SystemMessage, HumanMessage
 from typing import List
 from langchain_core.messages import AnyMessage

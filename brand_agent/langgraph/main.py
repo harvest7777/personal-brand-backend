@@ -4,7 +4,7 @@ from brand_agent.langgraph.agent_state_model import BrandAgentState, initialize_
 from langgraph_agents.router_helpers import *
 from brand_agent.langgraph.question_answerer.question_answerer_agent import build_question_answerer_graph
 from brand_agent.langgraph.brand_agent_definitions import Agent, AGENT_DESCRIPTIONS
-from langgraph_agents.shared_clients.supabase_client import supabase
+from shared_clients.supabase_client import supabase
 from brand_agent.brand_agent_helpers import get_asi_one_id_from_brand_agent_id
 from brand_agent.langgraph.audience_onboarder.audience_onboarder_agent import build_audience_onboarder_graph
 

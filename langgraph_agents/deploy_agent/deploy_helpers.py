@@ -1,6 +1,6 @@
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
-from langgraph_agents.shared_clients.supabase_client import supabase
+from shared_clients.supabase_client import supabase
 
 load_dotenv()
 
@@ -41,6 +41,6 @@ def extract_agent_id(user_input: str) -> str:
     return match.group(0) if match else ""
 
 if __name__ == "__main__":
-    from langgraph_agents.shared_clients.llm_client import shared_llm
+    from shared_clients.llm_client import shared_llm
     print("Deploy helpers")
     print(is_valid_agent_id("My agent id is agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx", shared_llm))

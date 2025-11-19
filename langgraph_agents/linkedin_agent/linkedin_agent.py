@@ -1,6 +1,6 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
-from langgraph_agents.shared_clients.composio_client import *
+from shared_clients.composio_client import *
 from langgraph_agents.models import *
 from langgraph_agents.linkedin_agent.linkedin_helpers import *
 

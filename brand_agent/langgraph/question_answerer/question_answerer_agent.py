@@ -5,7 +5,7 @@ from brand_agent.brand_agent_helpers import *
 from brand_agent.langgraph.agent_state_model import BrandAgentState
 from brand_agent.langgraph.question_answerer.question_answerer_steps import Step
 from langgraph_agents.models import initialize_agent_state
-from langgraph_agents.shared_clients.llm_client import shared_llm
+from shared_clients.llm_client import shared_llm
 from chroma.chroma_helpers import get_most_relevant_facts
 
 def question_answerer_agent(state: BrandAgentState):

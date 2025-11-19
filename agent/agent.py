@@ -12,7 +12,7 @@ import os
 from dotenv import load_dotenv
 from uagents import Context, Protocol, Agent
 from agent.orchestrator_models import *
-from langgraph_agents.shared_clients.composio_client import *
+from shared_clients.composio_client import *
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
     ChatMessage,

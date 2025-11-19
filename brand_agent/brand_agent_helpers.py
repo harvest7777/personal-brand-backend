@@ -2,7 +2,7 @@ from chroma.chroma_models import ChromaDocument
 from typing import List
 from langchain_core.messages import SystemMessage, HumanMessage, BaseMessage
 from langchain_openai import ChatOpenAI
-from langgraph_agents.shared_clients.supabase_client import supabase
+from shared_clients.supabase_client import supabase
 
 def answer_query_with_facts(chroma_documents: List[ChromaDocument], query: str, llm: ChatOpenAI) -> str:
     """
