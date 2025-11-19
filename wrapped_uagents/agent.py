@@ -11,7 +11,6 @@ from uagents.setup import fund_agent_if_low
 import os
 from dotenv import load_dotenv
 from uagents import Context, Protocol, Agent
-from wrapped_uagents.orchestrator_models import *
 from shared_clients.composio_client import *
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
@@ -90,33 +89,7 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     # endregion
 
-@agent.on_rest_post("/delete_data", DeleteData, DeleteDataResponse)
-async def handle_delete_data(ctx: Context, req: DeleteData) -> DeleteDataResponse:
-    ctx.logger.info("Received POST request")
-    ctx.logger.info(req)
-    asi_one_id = req.asi_one_id
-    await ctx.send(asi_one_id, ChatMessage(
-        content=[
-            TextContent(type="text", text=f"Data deleted"),
-        ]
-    ))
-
-    return DeleteDataResponse(success=True)
 # need to define req and respo
-@agent.on_rest_post("/connection_success", ForwardConnectionLink, ConnectionLinkForwardedResponse)
-async def handle_post(ctx: Context, req: ForwardConnectionLink) -> ConnectionLinkForwardedResponse:
-    ctx.logger.info("Received POST request")
-    asi_one_id = req.asi_one_id
-    await ctx.send(asi_one_id, ChatMessage(
-        content=[
-            TextContent(type="text", text=f"Connection link forwarded to {req.redirect_url}"),
-        ]
-    ))
-
-    return ConnectionLinkForwardedResponse(
-        success=True
-    )
-
 @protocol.on_message(ChatAcknowledgement)
 async def handle_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
     pass
