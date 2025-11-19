@@ -1,11 +1,10 @@
 from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import HumanMessage, AIMessage
 from data_management_agent.models import *
-from data_management_agent.github import build_github_graph
 from data_management_agent.gather_agent.gather_agent import build_gather_graph
 from data_management_agent.onboarding_agent.onboarding_agent import build_onboarding_graph
 from data_management_agent.router_helpers import *
-from data_management_agent.agents import *
+from data_management_agent.data_management_agent_definitions import *
 from utils.data_serialization_helpers import *
 from data_management_agent.linkedin_agent.linkedin_agent import build_linkedin_graph
 from data_management_agent.deploy_agent.deploy import build_deploy_graph
@@ -39,7 +38,6 @@ def fallback_agent(state: AgentState):
     - Ingest facts from your resume
     - Help you manage your data
     - Connect your LinkedIn
-    - Connect your GitHub 
     \n 
     Let me know what you'd like to do!
     """
@@ -55,14 +53,12 @@ def build_main_graph():
     graph.add_node(intent_router)
     graph.add_node(end_agent)
 
-    github_agent = build_github_graph()
     onboarding_agent = build_onboarding_graph()
     linkedin_agent = build_linkedin_graph()
     delete_agent = build_delete_graph()
     deploy_agent = build_deploy_graph()
     gather_agent = build_gather_graph()
 
-    graph.add_node(Agent.GITHUB.value, github_agent)
     graph.add_node(Agent.ONBOARDING.value, onboarding_agent)
     graph.add_node(Agent.LINKEDIN.value, linkedin_agent)
     graph.add_node(Agent.DELETE.value, delete_agent)

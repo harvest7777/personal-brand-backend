@@ -8,7 +8,7 @@ from data_management_agent.onboarding_agent.onboarding_types import Step
 
 def onboarding_agent(state: AgentState):
     """Initial entry point for the Onboarding Agent, it will determine the next step to display to the user"""
-    current_step = state.get("current_step")
+    current_step = state["current_step"]
     is_valid_step = current_step in [s.value for s in Step]
 
     if not current_step or not is_valid_step:
@@ -58,7 +58,7 @@ def verify_name(state: AgentState):
 def invalid_step(state: AgentState):
     return {
         "messages": state["messages"] + [
-            AIMessage(content=f"⚠️ Invalid step `{state.get('current_step')}`")
+            AIMessage(content=f"⚠️ Invalid step `{state['current_step']}`")
         ],
         "current_agent":"",
         "current_step": "",
@@ -133,5 +133,4 @@ def build_onboarding_graph():
 
 
 if __name__ == "__main__":
-    from pprint import pprint
     graph = build_onboarding_graph()

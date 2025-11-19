@@ -35,7 +35,7 @@ def build_linkedin_graph():
 if __name__ == "__main__":
     from pprint import pprint
     graph = build_linkedin_graph()
-    new_chat: AgentState = {"asi_one_id": "user123", "current_step": "", "current_agent": "", "messages": [HumanMessage(content="github")]}
+    new_chat: AgentState = initialize_agent_state("user123")
     result = graph.invoke(new_chat)
     pprint(result, indent=2)
 

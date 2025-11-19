@@ -1,7 +1,7 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from data_management_agent.models import *
-from data_management_agent.agents import Agent
+from data_management_agent.data_management_agent_definitions import Agent
 from data_management_agent.delete_agent.delete_types import Step
 from data_management_agent.delete_agent.delete_helpers import is_valid_delete_request, to_delete_from_user_input, select_ids_to_delete, delete_data
 from chroma.shared_chroma_client import collection
