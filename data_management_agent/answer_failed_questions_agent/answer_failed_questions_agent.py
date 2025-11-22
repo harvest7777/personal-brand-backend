@@ -225,10 +225,27 @@ if __name__ == "__main__":
             insert_question(asi_one_id, question, brand_agent_id)
         print(f"✓ Added {len(test_questions)} test questions")
     
-    def run_test(test_name: str, user_messages: list[str]):
-        """Run a test with given user messages"""
+    def test_getting_failed_questions():
+        """Test: Just getting the failed questions"""
         print(f"\n{'='*60}")
-        print(f"TEST: {test_name}")
+        print(f"TEST: Getting failed questions")
+        print(f"{'='*60}")
+        
+        reset_state()
+        add_test_questions()
+        
+        state = initialize_agent_state(asi_one_id)
+        state["messages"].append(HumanMessage(content="what are my remaining questions?"))
+        result = graph.invoke(state)
+        
+        print(f"User: what are my remaining questions?")
+        print(f"AI: {result['messages'][-1].content}")
+        print(f"\n{'='*60}\n")
+    
+    def test_picking_random_question():
+        """Test: Trying to pick a random one to answer"""
+        print(f"\n{'='*60}")
+        print(f"TEST: Picking a random question")
         print(f"{'='*60}")
         
         reset_state()
@@ -236,45 +253,43 @@ if __name__ == "__main__":
         
         state = initialize_agent_state(asi_one_id)
         
-        for i, user_msg in enumerate(user_messages):
-            print(f"\n--- Step {i+1} ---")
-            print(f"User: {user_msg}")
-            state["messages"].append(HumanMessage(content=user_msg))
-            result = graph.invoke(state)
-            state = AgentState(**result)
-            
-            ai_response = result["messages"][-1].content
-            print(f"AI: {ai_response}")
+        print(f"--- Step 1 ---")
+        print(f"User: what are my remaining questions?")
+        state["messages"].append(HumanMessage(content="what are my remaining questions?"))
+        result = graph.invoke(state)
+        state = AgentState(**result)
+        print(f"AI: {result['messages'][-1].content}")
         
+        print(f"\n--- Step 2 ---")
+        print(f"User: random")
+        state["messages"].append(HumanMessage(content="random"))
+        result = graph.invoke(state)
+        print(f"AI: {result['messages'][-1].content}")
         print(f"\n{'='*60}\n")
     
-    # Test 1: Just getting the failed questions
-    run_test(
-        "Getting failed questions",
-        ["what are my remaining questions?"]
-    )
-    
-    # Test 2: Trying to pick a random one to answer
-    run_test(
-        "Picking a random question",
-        ["what are my remaining questions?", "random"]
-    )
-    
-    # Test 3: Picking by UUID
-    reset_state()
-    add_test_questions()
-    questions = get_all_failed_questions(brand_agent_id)
-    if questions:
-        question_id = questions[0]["id"]
+    def test_picking_by_uuid():
+        """Test: Picking by UUID"""
         print(f"\n{'='*60}")
         print(f"TEST: Picking by UUID")
         print(f"{'='*60}")
         
+        reset_state()
+        add_test_questions()
+        questions = get_all_failed_questions(brand_agent_id)
+        
+        if not questions:
+            print("No questions to test UUID picking")
+            print(f"\n{'='*60}\n")
+            return
+        
+        question_id = questions[0]["id"]
         state = initialize_agent_state(asi_one_id)
+        
+        print(f"--- Step 1 ---")
+        print(f"User: what are my remaining questions?")
         state["messages"].append(HumanMessage(content="what are my remaining questions?"))
         result = graph.invoke(state)
         state = AgentState(**result)
-        print(f"User: what are my remaining questions?")
         print(f"AI: {result['messages'][-1].content}")
         
         print(f"\n--- Step 2 ---")
@@ -283,24 +298,30 @@ if __name__ == "__main__":
         result = graph.invoke(state)
         print(f"AI: {result['messages'][-1].content}")
         print(f"\n{'='*60}\n")
-    else:
-        print("No questions to test UUID picking")
     
-    # Test 4: Picking by UUID then answering
-    reset_state()
-    add_test_questions()
-    questions = get_all_failed_questions(brand_agent_id)
-    if questions:
-        question_id = questions[0]["id"]
+    def test_picking_by_uuid_then_answering():
+        """Test: Picking by UUID then answering"""
         print(f"\n{'='*60}")
         print(f"TEST: Picking by UUID then answering")
         print(f"{'='*60}")
         
+        reset_state()
+        add_test_questions()
+        questions = get_all_failed_questions(brand_agent_id)
+        
+        if not questions:
+            print("No questions to test UUID picking and answering")
+            print(f"\n{'='*60}\n")
+            return
+        
+        question_id = questions[0]["id"]
         state = initialize_agent_state(asi_one_id)
+        
+        print(f"--- Step 1 ---")
+        print(f"User: what are my remaining questions?")
         state["messages"].append(HumanMessage(content="what are my remaining questions?"))
         result = graph.invoke(state)
         state = AgentState(**result)
-        print(f"User: what are my remaining questions?")
         print(f"AI: {result['messages'][-1].content}")
         
         print(f"\n--- Step 2 ---")
@@ -317,6 +338,10 @@ if __name__ == "__main__":
         result = graph.invoke(state)
         print(f"AI: {result['messages'][-1].content}")
         print(f"\n{'='*60}\n")
-    else:
-        print("No questions to test UUID picking and answering")
+    
+    # Run all tests
+    test_getting_failed_questions()
+    test_picking_random_question()
+    test_picking_by_uuid()
+    test_picking_by_uuid_then_answering()
 
