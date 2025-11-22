@@ -9,6 +9,7 @@ from utils.data_serialization_helpers import *
 from data_management_agent.linkedin_agent.linkedin_agent import build_linkedin_graph
 from data_management_agent.deploy_agent.deploy import build_deploy_graph
 from data_management_agent.delete_agent.delete_agent import build_delete_graph
+from data_management_agent.answer_failed_questions_agent.answer_failed_questions_agent import build_answer_failed_questions_graph
 
 # --- Intent Router ---
 def intent_router(state: AgentState):
@@ -58,12 +59,14 @@ def build_main_graph():
     delete_agent = build_delete_graph()
     deploy_agent = build_deploy_graph()
     gather_agent = build_gather_graph()
+    answer_failed_questions_agent = build_answer_failed_questions_graph()
 
     graph.add_node(Agent.ONBOARDING.value, onboarding_agent)
     graph.add_node(Agent.LINKEDIN.value, linkedin_agent)
     graph.add_node(Agent.DELETE.value, delete_agent)
     graph.add_node(Agent.DEPLOY.value, deploy_agent)
     graph.add_node(Agent.GATHER.value, gather_agent)
+    graph.add_node(Agent.ANSWER_FAILED_QUESTIONS.value, answer_failed_questions_agent)
     graph.add_node(Agent.FALLBACK.value, fallback_agent)
 
     graph.add_edge(START, "intent_router")
