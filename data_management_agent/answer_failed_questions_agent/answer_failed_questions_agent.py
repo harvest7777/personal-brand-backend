@@ -11,7 +11,6 @@ from data_management_agent.answer_failed_questions_agent.answer_failed_questions
     format_questions_list,
     save_answer_as_fact,
     wants_random_question,
-    delete_all_failed_questions
 )
 from chroma.chroma_helpers import insert_question
 from brand_agent.brand_agent_helpers import get_brand_agent_id_from_asi_one_id
