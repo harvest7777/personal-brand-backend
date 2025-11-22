@@ -109,9 +109,6 @@ def ask_question(state: AgentState):
     # Show the question, list remaining, and ask for answer
     message = f"Here's the question:\n\n{question['question']}\n\n"
     
-    if remaining_questions:
-        message += f"Here are the next 5 remaining questions:\n\n{remaining_text}\n\n"
-    
     message += "Please provide your answer to the question above."
     
     return {
@@ -153,7 +150,7 @@ def handle_answer(state: AgentState):
     if remaining_questions:
         # List remaining questions and ask which one to answer next
         remaining_text = format_questions_list(remaining_questions, limit=5)
-        message += f"Here are the next 5 remaining questions:\n\n{remaining_text}\n\n"
+        message += f"Here are the next {len(remaining_questions)} remaining questions:\n\n{remaining_text}\n\n"
         message += "Feel free to paste another ID or tell me to give you a random question."
         
         return {
