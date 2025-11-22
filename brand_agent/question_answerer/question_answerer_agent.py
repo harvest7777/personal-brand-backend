@@ -5,7 +5,7 @@ from brand_agent.brand_agent_helpers import *
 from brand_agent.brand_agent_state_model import BrandAgentState, initialize_agent_state
 from brand_agent.question_answerer.question_answerer_steps import Step
 from shared_clients.llm_client import shared_llm
-from chroma.chroma_helpers import get_most_relevant_facts
+from chroma.chroma_helpers import get_most_relevant_facts, similar_question_exists, insert_question
 
 def question_answerer_agent(state: BrandAgentState):
     """Initial entry point for the Question Answerer Agent, it will determine the next step to display to the user"""
@@ -27,13 +27,24 @@ def answer_question(state: BrandAgentState):
 
     human_input = str(state["messages"][-1].content)
     facts = get_most_relevant_facts(asi_one_id, human_input, 3)
-    ai_response = answer_query_with_facts(facts, human_input, shared_llm)
+    
+    # If no facts, store the question and return early with a message
     if not facts:
-        supabase.from_("failed_questions").insert({
-            "personal_brand_agent_id": brand_agent_id,
-            "audience_asi_one_id": asi_one_id,
-            "question": human_input,
-        }).execute()
+        # Check if a similar question already exists in failed questions collection
+        if not similar_question_exists(human_input, brand_agent_id):
+            # Only add if a similar question doesn't exist
+            insert_question(asi_one_id, human_input, brand_agent_id)
+        
+        # Hardcoded response when we don't have enough information
+        ai_response = "I don't have enough information in my knowledge base to answer this question. I've stored this question for the personal brand owner to answer later."
+        
+        return {
+            "current_step": Step.ANSWER_QUESTION.value,
+            "messages": state["messages"] + [AIMessage(content=ai_response)]
+        }
+    
+    # If we have facts, proceed with normal answer flow
+    ai_response = answer_query_with_facts(facts, human_input, shared_llm)
     return {
         "current_step": Step.ANSWER_QUESTION.value,
         "messages": state["messages"] + [AIMessage(content=ai_response)]

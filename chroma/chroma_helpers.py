@@ -3,7 +3,7 @@ from chroma.chroma_constants import *
 import uuid
 from datetime import datetime
 from shared_clients.chroma_client import facts_collection
-from shared_clients.chroma_client import questions_collection
+from shared_clients.chroma_client import failed_questions_collection
 
 def insert_resume_fact(asi_one_id: str, fact: str) -> ChromaDocument:
     """Takes a resume fact and embeds it with additional metadata needed for chroma, returns the inserted document"""
@@ -73,7 +73,7 @@ def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaD
 
 def insert_question(asi_one_id: str, question: str, personal_brand_agent_id: str) -> bool:
     """Inserts a question into the questions collection"""
-    questions_collection.add(
+    failed_questions_collection.add(
         ids=[str(uuid.uuid4())],
         documents=[question],
         metadatas=[{
@@ -95,7 +95,7 @@ def similar_question_exists(question: str, personal_brand_agent_id: str) -> bool
     Returns:
         True if a similar question exists with distance <= 0.8, False otherwise
     """
-    results = questions_collection.query(
+    results = failed_questions_collection.query(
         query_texts=[question],
         n_results=1,
         where={"personal_brand_agent_id": personal_brand_agent_id}
