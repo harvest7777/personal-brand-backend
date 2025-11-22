@@ -58,8 +58,9 @@ def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaD
             # Extract metadata
             metadata = results['metadatas'][0][i] if results['metadatas'] and results['metadatas'][0] else {}
             doc_id = results['ids'][0][i] if results['ids'] and results['ids'][0] else str(uuid.uuid4())
-            
-            
+            doc_distance = results['distances'][0][i] if results['distances'] and results['distances'][0] else 0
+            if doc_distance > 0.8:
+                continue
             # Create ChromaDocument object
             chroma_doc = ChromaDocument(
                 id=doc_id,
