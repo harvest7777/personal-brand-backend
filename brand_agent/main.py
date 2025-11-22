@@ -24,7 +24,6 @@ def intent_router(state: BrandAgentState):
 
     return {"current_agent": classified_agent.value}
 
-
 def fallback_agent(state: BrandAgentState):
     # TODO fetch the user's name from db for fallback
 

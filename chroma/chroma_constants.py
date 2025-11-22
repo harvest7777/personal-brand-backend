@@ -1,6 +1,7 @@
 from enum import Enum
 
-COLLECTION = "user_facts"
+FACTS = "user_facts"
+QUESTIONS = "questions"
 
 class Source(Enum):
     UNKNOWN = "unknown"

@@ -4,7 +4,7 @@ from data_management_agent.models import *
 from data_management_agent.data_management_agent_definitions import Agent
 from data_management_agent.delete_agent.delete_types import Step
 from data_management_agent.delete_agent.delete_helpers import is_valid_delete_request, to_delete_from_user_input, select_ids_to_delete, delete_data
-from chroma.shared_chroma_client import collection
+from shared_clients.chroma_client import facts_collection
 from chroma.chroma_models import ChromaDocument
 from chroma.chroma_constants import Source
 import uuid
@@ -132,7 +132,7 @@ def add_test_data(data: str):
     )
 
     # Insert into Chroma
-    collection.add(
+    facts_collection.add(
         ids=[new_doc.id],
         documents=[new_doc.document],
         metadatas=[{

@@ -3,8 +3,8 @@ from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
 from shared_clients.supabase_client import supabase
 from data_management_agent.onboarding_agent.onboarding_types import Step
-from chroma.shared_chroma_client import chroma_client
-from chroma.chroma_constants import COLLECTION, Source
+from shared_clients.chroma_client import chroma_client
+from chroma.chroma_constants import FACTS, Source
 
 load_dotenv()
 
@@ -21,7 +21,7 @@ def get_milestone_step_statuses(asi_one_id: str) -> dict[Step, bool]:
         name = user_profile.get("name") # type: ignore
         name_verified = name is not None and name != ""
     
-    resume_facts = chroma_client.get_collection(COLLECTION).query(
+    resume_facts = chroma_client.get_collection(FACTS).query(
         query_texts=[asi_one_id],
         n_results=1,
         where={"source": Source.RESUME.value}

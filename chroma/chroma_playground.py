@@ -26,7 +26,7 @@ def test_embedding():
     )
 
 def test_query_resume_facts(query: str):
-    collection = chroma_client.get_collection(COLLECTION)
+    collection = chroma_client.get_collection(FACTS)
     result = collection.query(query_texts=query, n_results=1)
     return result
 

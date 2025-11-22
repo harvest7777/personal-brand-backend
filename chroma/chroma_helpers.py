@@ -1,11 +1,9 @@
 from chroma.chroma_models import *
 from chroma.chroma_constants import *
-import chromadb
 import uuid
 from datetime import datetime
-
-chroma_client = chromadb.PersistentClient()
-collection = chroma_client.get_or_create_collection(name=COLLECTION)
+from shared_clients.chroma_client import facts_collection
+from shared_clients.chroma_client import questions_collection
 
 def insert_resume_fact(asi_one_id: str, fact: str) -> ChromaDocument:
     """Takes a resume fact and embeds it with additional metadata needed for chroma, returns the inserted document"""
@@ -20,7 +18,7 @@ def insert_resume_fact(asi_one_id: str, fact: str) -> ChromaDocument:
     )
 
     # Insert into Chroma
-    collection.add(
+    facts_collection.add(
         ids=[new_doc.id],
         documents=[new_doc.document],
         metadatas=[{
@@ -45,7 +43,7 @@ def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaD
         List of ChromaDocument objects that match the query and belong to the agent
     """
     # Query the collection with filtering by agent_id
-    results = collection.query(
+    results = facts_collection.query(
         query_texts=[query],
         n_results=n,
         where={"asi_one_id": asi_one_id}
@@ -73,9 +71,63 @@ def get_most_relevant_facts(asi_one_id: str, query: str, n: int) -> list[ChromaD
     
     return documents
 
-if __name__ == "__main__":
-    asi_one_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
-    query = "What are  skills?"
+def insert_question(asi_one_id: str, question: str, personal_brand_agent_id: str) -> bool:
+    """Inserts a question into the questions collection"""
+    questions_collection.add(
+        ids=[str(uuid.uuid4())],
+        documents=[question],
+        metadatas=[{
+            "audience_asi_one_id": asi_one_id,
+            "personal_brand_agent_id": personal_brand_agent_id,
+            "time_logged": datetime.now().astimezone().isoformat()
+        }]
+    )
+    return True
 
-    facts = get_most_relevant_facts(asi_one_id, query, 1)
-    print(facts)
+def similar_question_exists(question: str, personal_brand_agent_id: str) -> bool:
+    """
+    Checks if a similar question exists with distance <= 0.8 for the same personal brand agent.
+    
+    Args:
+        question: The question text to search for
+        personal_brand_agent_id: The personal brand agent ID to filter by
+    
+    Returns:
+        True if a similar question exists with distance <= 0.8, False otherwise
+    """
+    results = questions_collection.query(
+        query_texts=[question],
+        n_results=1,
+        where={"personal_brand_agent_id": personal_brand_agent_id}
+    )
+    
+    # Check if any results exist and have distance <= 0.8
+    if results['distances'] and results['distances'][0]:
+        for distance in results['distances'][0]:
+            if distance <= 0.8:
+                return True
+    
+    return False
+
+
+if __name__ == "__main__":
+    from shared_clients.chroma_client import chroma_client
+    asi_one_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
+    brand_agent_id = "agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx"
+    query = "what are ryans skills?"
+    # insert_question(asi_one_id, query, brand_agent_id)
+    # res = questions_collection.query(
+    #     query_texts=[query],
+    #     n_results=1,
+    #     where={"personal_brand_agent_id": brand_agent_id}
+    # )
+    # print(res)
+    
+    # Test similar_question_exists
+    exists = similar_question_exists(query, brand_agent_id)
+    print(f"Similar question exists: {exists}")
+    
+    # Test with a different question that shouldn't exist
+    different_query = "What is the capital of Mars?"
+    exists_different = similar_question_exists(different_query, brand_agent_id)
+    print(f"Different question exists: {exists_different}")

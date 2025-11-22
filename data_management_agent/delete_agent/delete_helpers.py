@@ -1,6 +1,6 @@
 from langchain_core.messages import HumanMessage
 from shared_clients.llm_client import shared_llm
-from chroma.shared_chroma_client import collection
+from shared_clients.chroma_client import facts_collection
 
 def is_valid_delete_request(user_input: str) -> bool:
     """Check if the user's message is a valid delete request"""
@@ -22,7 +22,7 @@ def is_valid_delete_request(user_input: str) -> bool:
 
 def delete_data(ids_to_delete: list[str]):
     """Delete the data from the database."""
-    collection.delete(ids=ids_to_delete)
+    facts_collection.delete(ids=ids_to_delete)
 
 def select_ids_to_delete(data_ids_to_delete: list[str], user_input: str) -> list[str]:
     """Select the ids to delete based on the user's input."""
@@ -66,7 +66,7 @@ def to_delete_from_user_input(user_input: str, asi_one_id: str) -> list[str]:
     """Extract the data to delete from the user's input"""
     documents_and_ids = []
 
-    result = collection.query(query_texts=user_input,n_results=5, where={"asi_one_id": asi_one_id})
+    result = facts_collection.query(query_texts=user_input,n_results=5, where={"asi_one_id": asi_one_id})
     for i in range(len(result["documents"][0])): # type: ignore
         if result["distances"][0][i] <= 1.5: # type: ignore
             documents_and_ids.append((result["documents"][0][i], result["ids"][0][i])) # type: ignore
