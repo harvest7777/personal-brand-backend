@@ -10,8 +10,10 @@ from data_management_agent.answer_failed_questions_agent.answer_failed_questions
     delete_question,
     format_questions_list,
     save_answer_as_fact,
-    wants_random_question
+    wants_random_question,
+    delete_all_failed_questions
 )
+from chroma.chroma_helpers import insert_question
 from brand_agent.brand_agent_helpers import get_brand_agent_id_from_asi_one_id
 from shared_clients.llm_client import shared_llm
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -205,14 +207,119 @@ def build_answer_failed_questions_graph():
 if __name__ == "__main__":
     from pprint import pprint
     
-    # Query all failed questions for the brand agent ID
+    # Test configuration
     brand_agent_id = "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7"
+    asi_one_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
     graph = build_answer_failed_questions_graph()
     
-    new_chat: AgentState = initialize_agent_state("agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f")
-    new_chat["messages"].append(HumanMessage(content="what are my remaining questions?"))
-    result = graph.invoke(new_chat)
-
-    ai_response = result["messages"][-1].content
-    print("AI Response:", ai_response)
+    def reset_state():
+        """Delete all failed questions for the test brand agent"""
+        delete_all_failed_questions(brand_agent_id)
+        print("✓ Reset: Deleted all failed questions")
+    
+    def add_test_questions():
+        """Add some test questions"""
+        test_questions = [
+            "What is your favorite programming language?",
+            "How many years of experience do you have?",
+            "What is your biggest achievement?"
+        ]
+        for question in test_questions:
+            insert_question(asi_one_id, question, brand_agent_id)
+        print(f"✓ Added {len(test_questions)} test questions")
+    
+    def run_test(test_name: str, user_messages: list[str]):
+        """Run a test with given user messages"""
+        print(f"\n{'='*60}")
+        print(f"TEST: {test_name}")
+        print(f"{'='*60}")
+        
+        reset_state()
+        add_test_questions()
+        
+        state = initialize_agent_state(asi_one_id)
+        
+        for i, user_msg in enumerate(user_messages):
+            print(f"\n--- Step {i+1} ---")
+            print(f"User: {user_msg}")
+            state["messages"].append(HumanMessage(content=user_msg))
+            result = graph.invoke(state)
+            state = AgentState(**result)
+            
+            ai_response = result["messages"][-1].content
+            print(f"AI: {ai_response}")
+        
+        print(f"\n{'='*60}\n")
+    
+    # Test 1: Just getting the failed questions
+    run_test(
+        "Getting failed questions",
+        ["what are my remaining questions?"]
+    )
+    
+    # Test 2: Trying to pick a random one to answer
+    run_test(
+        "Picking a random question",
+        ["what are my remaining questions?", "random"]
+    )
+    
+    # Test 3: Picking by UUID
+    reset_state()
+    add_test_questions()
+    questions = get_all_failed_questions(brand_agent_id)
+    if questions:
+        question_id = questions[0]["id"]
+        print(f"\n{'='*60}")
+        print(f"TEST: Picking by UUID")
+        print(f"{'='*60}")
+        
+        state = initialize_agent_state(asi_one_id)
+        state["messages"].append(HumanMessage(content="what are my remaining questions?"))
+        result = graph.invoke(state)
+        state = AgentState(**result)
+        print(f"User: what are my remaining questions?")
+        print(f"AI: {result['messages'][-1].content}")
+        
+        print(f"\n--- Step 2 ---")
+        print(f"User: {question_id}")
+        state["messages"].append(HumanMessage(content=question_id))
+        result = graph.invoke(state)
+        print(f"AI: {result['messages'][-1].content}")
+        print(f"\n{'='*60}\n")
+    else:
+        print("No questions to test UUID picking")
+    
+    # Test 4: Picking by UUID then answering
+    reset_state()
+    add_test_questions()
+    questions = get_all_failed_questions(brand_agent_id)
+    if questions:
+        question_id = questions[0]["id"]
+        print(f"\n{'='*60}")
+        print(f"TEST: Picking by UUID then answering")
+        print(f"{'='*60}")
+        
+        state = initialize_agent_state(asi_one_id)
+        state["messages"].append(HumanMessage(content="what are my remaining questions?"))
+        result = graph.invoke(state)
+        state = AgentState(**result)
+        print(f"User: what are my remaining questions?")
+        print(f"AI: {result['messages'][-1].content}")
+        
+        print(f"\n--- Step 2 ---")
+        print(f"User: {question_id}")
+        state["messages"].append(HumanMessage(content=question_id))
+        result = graph.invoke(state)
+        state = AgentState(**result)
+        print(f"AI: {result['messages'][-1].content}")
+        
+        print(f"\n--- Step 3 ---")
+        answer = "Python is my favorite programming language"
+        print(f"User: {answer}")
+        state["messages"].append(HumanMessage(content=answer))
+        result = graph.invoke(state)
+        print(f"AI: {result['messages'][-1].content}")
+        print(f"\n{'='*60}\n")
+    else:
+        print("No questions to test UUID picking and answering")
 

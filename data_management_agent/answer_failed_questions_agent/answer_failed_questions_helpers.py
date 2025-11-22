@@ -68,7 +68,18 @@ def delete_question(question_id: str):
     """
     failed_questions_collection.delete(ids=[question_id])
 
-def format_questions_list(questions: list[dict], limit: int = None) -> str:
+def delete_all_failed_questions(personal_brand_agent_id: str):
+    """
+    Deletes all failed questions for a personal brand agent.
+    Args:
+        personal_brand_agent_id: The personal brand agent ID
+    """
+    questions = get_all_failed_questions(personal_brand_agent_id)
+    if questions:
+        question_ids = [q["id"] for q in questions]
+        failed_questions_collection.delete(ids=question_ids)
+
+def format_questions_list(questions: list[dict], limit: int | None = None) -> str:
     """
     Formats a list of questions for display.
     Args:
