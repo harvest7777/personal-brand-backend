@@ -4,14 +4,17 @@ from data_management_agent.models import *
 from data_management_agent.data_management_agent_definitions import Agent
 from data_management_agent.answer_failed_questions_agent.answer_failed_questions_steps import Step
 from data_management_agent.answer_failed_questions_agent.answer_failed_questions_helpers import (
-    get_brand_agent_id_from_asi_one_id,
     get_all_failed_questions,
     get_question_by_id,
     get_random_question,
     delete_question,
     format_questions_list,
-    save_answer_as_fact
+    save_answer_as_fact,
+    wants_random_question
 )
+from brand_agent.brand_agent_helpers import get_brand_agent_id_from_asi_one_id
+from shared_clients.llm_client import shared_llm
+from langchain_core.messages import SystemMessage, HumanMessage
 
 def answer_failed_questions_agent(state: AgentState):
     """Initial entry point for the Answer Failed Questions Agent, it will determine the next step to display to the user"""
@@ -32,6 +35,7 @@ def list_questions(state: AgentState):
     """List all failed questions"""
     asi_one_id = state["asi_one_id"]
     brand_agent_id = get_brand_agent_id_from_asi_one_id(asi_one_id)
+    print("brand_agent_id", brand_agent_id)
     
     if not brand_agent_id:
         return {
@@ -61,8 +65,8 @@ def list_questions(state: AgentState):
     }
 
 def ask_question(state: AgentState):
-    """Ask the user if they want a random question or a specific question by ID"""
-    user_input = str(state["messages"][-1].content).strip().lower()
+    """Ask the user if they want a random question or a specific question by ID, then show the question and list remaining"""
+    user_input = str(state["messages"][-1].content).strip()
     asi_one_id = state["asi_one_id"]
     brand_agent_id = get_brand_agent_id_from_asi_one_id(asi_one_id)
     
@@ -73,50 +77,53 @@ def ask_question(state: AgentState):
             "messages": state["messages"] + [AIMessage(content="Could not find your personal brand agent.")]
         }
     
-    # Check if user wants a random question
-    if "random" in user_input or "yes" in user_input or "sure" in user_input or "ok" in user_input:
-        random_q = get_random_question(brand_agent_id)
-        if not random_q:
+    # Use LLM to determine if user wants random question
+    wants_random = wants_random_question(user_input, state["messages"])
+    
+    question = None
+    if wants_random:
+        question = get_random_question(brand_agent_id)
+        if not question:
             return {
                 "current_step": "",
                 "current_agent": "",
                 "messages": state["messages"] + [AIMessage(content="No more questions to answer!")]
             }
-        
-        return {
-            "current_step": Step.HANDLE_ANSWER.value,
-            "current_agent": Agent.ANSWER_FAILED_QUESTIONS.value,
-            "answer_failed_questions_agent_state": AnswerFailedQuestionsAgentState(
-                current_question_id=random_q["id"],
-                current_question=random_q["question"]
-            ),
-            "messages": state["messages"] + [AIMessage(content=random_q["question"])]
-        }
+    else:
+        # Try to get question by ID
+        question = get_question_by_id(user_input)
+        if not question:
+            return {
+                "current_step": Step.ASK_QUESTION.value,
+                "current_agent": Agent.ANSWER_FAILED_QUESTIONS.value,
+                "messages": state["messages"] + [AIMessage(content="I didn't find a question with that ID. Please paste a valid question ID or ask for a random question.")]
+            }
     
-    # Check if user provided an ID
-    # Try to get question by ID
-    question = get_question_by_id(user_input)
+    # Get remaining questions (excluding the one we're about to show)
+    remaining_questions = get_all_failed_questions(brand_agent_id)
+    remaining_questions = [q for q in remaining_questions if q["id"] != question["id"]]
+    remaining_text = format_questions_list(remaining_questions, limit=5)
     
-    if question:
-        return {
-            "current_step": Step.HANDLE_ANSWER.value,
-            "current_agent": Agent.ANSWER_FAILED_QUESTIONS.value,
-            "answer_failed_questions_agent_state": AnswerFailedQuestionsAgentState(
-                current_question_id=question["id"],
-                current_question=question["question"]
-            ),
-            "messages": state["messages"] + [AIMessage(content=question["question"])]
-        }
+    # Show the question, list remaining, and ask for answer
+    message = f"Here's the question:\n\n{question['question']}\n\n"
     
-    # If we get here, user input wasn't recognized
+    if remaining_questions:
+        message += f"Here are the next 5 remaining questions:\n\n{remaining_text}\n\n"
+    
+    message += "Please provide your answer to the question above."
+    
     return {
-        "current_step": Step.ASK_QUESTION.value,
+        "current_step": Step.HANDLE_ANSWER.value,
         "current_agent": Agent.ANSWER_FAILED_QUESTIONS.value,
-        "messages": state["messages"] + [AIMessage(content="I didn't understand that. Please paste a question ID or ask for a random question.")]
+        "answer_failed_questions_agent_state": AnswerFailedQuestionsAgentState(
+            current_question_id=question["id"],
+            current_question=question["question"]
+        ),
+        "messages": state["messages"] + [AIMessage(content=message)]
     }
 
 def handle_answer(state: AgentState):
-    """Handle the user's answer to a question"""
+    """Handle the user's answer to a question, then list remaining questions and ask again"""
     user_answer = str(state["messages"][-1].content)
     current_question_id = state["answer_failed_questions_agent_state"]["current_question_id"]
     current_question = state["answer_failed_questions_agent_state"]["current_question"]
@@ -136,28 +143,38 @@ def handle_answer(state: AgentState):
     # Delete the question
     delete_question(current_question_id)
     
-    # Get next 5 questions
+    # Get remaining questions
     remaining_questions = get_all_failed_questions(brand_agent_id)
-    next_questions_text = format_questions_list(remaining_questions, limit=5)
     
-    message = f"Thanks! I've recorded your response and marked that question as complete. "
+    message = f"Thanks! I've recorded your response and marked that question as complete.\n\n"
     
     if remaining_questions:
-        message += f"Here are the next 5 questions:\n\n{next_questions_text}\n\n"
+        # List remaining questions and ask which one to answer next
+        remaining_text = format_questions_list(remaining_questions, limit=5)
+        message += f"Here are the next 5 remaining questions:\n\n{remaining_text}\n\n"
+        message += "Feel free to paste another ID or tell me to give you a random question."
+        
+        return {
+            "current_step": Step.ASK_QUESTION.value,
+            "current_agent": Agent.ANSWER_FAILED_QUESTIONS.value,
+            "answer_failed_questions_agent_state": AnswerFailedQuestionsAgentState(
+                current_question_id="",
+                current_question=""
+            ),
+            "messages": state["messages"] + [AIMessage(content=message)]
+        }
     else:
-        message += "All questions have been answered!\n\n"
-    
-    message += "Feel free to paste another ID or tell me to give you a random question."
-    
-    return {
-        "current_step": Step.ASK_QUESTION.value,
-        "current_agent": Agent.ANSWER_FAILED_QUESTIONS.value,
-        "answer_failed_questions_agent_state": AnswerFailedQuestionsAgentState(
-            current_question_id="",
-            current_question=""
-        ),
-        "messages": state["messages"] + [AIMessage(content=message)]
-    }
+        # All done
+        message += "All questions have been answered!"
+        return {
+            "current_step": "",
+            "current_agent": "",
+            "answer_failed_questions_agent_state": AnswerFailedQuestionsAgentState(
+                current_question_id="",
+                current_question=""
+            ),
+            "messages": state["messages"] + [AIMessage(content=message)]
+        }
 
 def build_answer_failed_questions_graph():
     graph = StateGraph(AgentState)
@@ -187,9 +204,15 @@ def build_answer_failed_questions_graph():
 
 if __name__ == "__main__":
     from pprint import pprint
+    
+    # Query all failed questions for the brand agent ID
+    brand_agent_id = "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7"
     graph = build_answer_failed_questions_graph()
     
     new_chat: AgentState = initialize_agent_state("agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f")
+    new_chat["messages"].append(HumanMessage(content="what are my remaining questions?"))
     result = graph.invoke(new_chat)
-    print("result", result)
+
+    ai_response = result["messages"][-1].content
+    print("AI Response:", ai_response)
 

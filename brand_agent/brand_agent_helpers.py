@@ -62,6 +62,17 @@ def get_asi_one_id_from_brand_agent_id(brand_agent_id: str) -> str:
     result = supabase.table("personal_brand_asi_one_relationships").select("asi_one_id").eq("personal_brand_agent_id", brand_agent_id).execute()
     return result.data[0]["asi_one_id"] if result.data else None # type: ignore
 
+def get_brand_agent_id_from_asi_one_id(asi_one_id: str) -> str:
+    """
+    Gets the personal brand agent ID from the ASI:One ID.
+    Args:
+        asi_one_id: The ASI:One ID
+    Returns:
+        The personal brand agent ID
+    """
+    result = supabase.table("personal_brand_asi_one_relationships").select("personal_brand_agent_id").eq("asi_one_id", asi_one_id).execute()
+    return result.data[0]["personal_brand_agent_id"] if result.data else None # type: ignore
+
 if __name__ == "__main__":
     from chroma.chroma_helpers import *
     from dotenv import load_dotenv

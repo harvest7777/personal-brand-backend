@@ -113,21 +113,21 @@ def similar_question_exists(question: str, personal_brand_agent_id: str) -> bool
 if __name__ == "__main__":
     from shared_clients.chroma_client import chroma_client
     asi_one_id = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
-    brand_agent_id = "agent1qt3qh62838nhu4u7j86azn55ylvfm767d9rhk5lae4qe8lnyspvhu7zxrsx"
+    brand_agent_id = "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7"
     query = "what are ryans skills?"
-    # insert_question(asi_one_id, query, brand_agent_id)
-    # res = questions_collection.query(
-    #     query_texts=[query],
-    #     n_results=1,
-    #     where={"personal_brand_agent_id": brand_agent_id}
-    # )
-    # print(res)
+    insert_question(asi_one_id, query, brand_agent_id)
+    res = failed_questions_collection.query(
+        query_texts=[query],
+        n_results=1,
+        where={"personal_brand_agent_id": brand_agent_id}
+    )
+    print(res)
     
-    # Test similar_question_exists
-    exists = similar_question_exists(query, brand_agent_id)
-    print(f"Similar question exists: {exists}")
+    # # Test similar_question_exists
+    # exists = similar_question_exists(query, brand_agent_id)
+    # print(f"Similar question exists: {exists}")
     
-    # Test with a different question that shouldn't exist
-    different_query = "What is the capital of Mars?"
-    exists_different = similar_question_exists(different_query, brand_agent_id)
-    print(f"Different question exists: {exists_different}")
+    # # Test with a different question that shouldn't exist
+    # different_query = "What is the capital of Mars?"
+    # exists_different = similar_question_exists(different_query, brand_agent_id)
+    # print(f"Different question exists: {exists_different}")

@@ -1,18 +1,7 @@
 import random
 from shared_clients.chroma_client import failed_questions_collection
-from shared_clients.supabase_client import supabase
 from chroma.chroma_helpers import insert_resume_fact
-
-def get_brand_agent_id_from_asi_one_id(asi_one_id: str) -> str:
-    """
-    Gets the personal brand agent ID from the ASI:One ID.
-    Args:
-        asi_one_id: The ASI:One ID
-    Returns:
-        The personal brand agent ID
-    """
-    result = supabase.table("personal_brand_asi_one_relationships").select("personal_brand_agent_id").eq("asi_one_id", asi_one_id).execute()
-    return result.data[0]["personal_brand_agent_id"] if result.data else None # type: ignore
+from brand_agent.brand_agent_helpers import get_brand_agent_id_from_asi_one_id
 
 def get_all_failed_questions(personal_brand_agent_id: str) -> list[dict]:
     """
@@ -110,4 +99,44 @@ def save_answer_as_fact(asi_one_id: str, question: str, answer: str):
     """
     fact = f"Q: {question}\nA: {answer}"
     insert_resume_fact(asi_one_id, fact)
+
+def wants_random_question(user_input: str, messages: list) -> bool:
+    """
+    Uses LLM to determine if the user wants a random question.
+    Args:
+        user_input: The user's input
+        messages: The conversation history for context
+    Returns:
+        True if user wants random question, False otherwise
+    """
+    from shared_clients.llm_client import shared_llm
+    from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
+    
+    # Build context from recent messages
+    context_parts = []
+    for msg in messages[-5:]:
+        role = "User" if isinstance(msg, HumanMessage) else "Agent"
+        context_parts.append(f"{role}: {msg.content}")
+    context = "\n".join(context_parts)
+    
+    prompt = f"""You are determining if the user wants a random question or provided a specific question ID.
+
+Conversation context:
+{context}
+
+User's latest input: "{user_input}"
+
+Determine if the user wants a random question. They might say things like:
+- "random", "yes", "sure", "ok", "give me a random one", "pick one", etc.
+
+Or they might provide a specific question ID (which would be a UUID-like string).
+
+Respond with only "true" or "false" (lowercase, no quotes)."""
+    
+    response = shared_llm.invoke([
+        SystemMessage(content="You are a helpful assistant that determines user intent. Respond with only 'true' or 'false'."),
+        HumanMessage(content=prompt)
+    ])
+    
+    return response.content.strip().lower() == "true" # type: ignore
 
