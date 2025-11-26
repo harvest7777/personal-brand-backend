@@ -9,7 +9,7 @@ from chroma.chroma_helpers import insert_question
 
 # Test configuration
 BRAND_AGENT_ID = "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7"
-ASI_ONE_ID = "agent1q29tg4sgdzg33gr7u63hfemq4hk54thsya3s7kygurrxg3j8p8f2qlnxz9f"
+ASI_ONE_ID = "agent1qdnhwqv3ekrzcuk597nrzc8xh9eyurlwvsrzzrytr6cl87zuwfuayh4xq6g"
 
 def reset_state():
     """Delete all failed questions for the test brand agent"""
@@ -235,6 +235,6 @@ if __name__ == "__main__":
     # test_getting_failed_questions()
     # test_picking_random_question()
     # test_picking_by_uuid()
-    # test_picking_by_uuid_then_answering()
-    test_back_and_forth_answering_multiple_questions()
+    test_picking_by_uuid_then_answering()
+    # test_back_and_forth_answering_multiple_questions()
 

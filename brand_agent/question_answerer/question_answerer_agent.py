@@ -33,6 +33,7 @@ def answer_question(state: BrandAgentState):
         # Check if a similar question already exists in failed questions collection
         if not similar_question_exists(human_input, brand_agent_id):
             # Only add if a similar question doesn't exist
+            print(f"Inserting question {human_input} into failed questions collection")
             insert_question(asi_one_id, human_input, brand_agent_id)
         
         # Hardcoded response when we don't have enough information

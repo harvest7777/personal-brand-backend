@@ -1,6 +1,6 @@
 import random
 from shared_clients.chroma_client import failed_questions_collection
-from chroma.chroma_helpers import insert_resume_fact
+from chroma.chroma_helpers import insert_resume_fact, get_most_relevant_facts
 from brand_agent.brand_agent_helpers import get_brand_agent_id_from_asi_one_id
 
 def get_all_failed_questions(personal_brand_agent_id: str) -> list[dict]:
@@ -151,3 +151,7 @@ Respond with only "true" or "false" (lowercase, no quotes)."""
     
     return response.content.strip().lower() == "true" # type: ignore
 
+
+if __name__ == "__main__":
+    # delete_question("7f34414f-9463-419b-96ca-6021e00d8d7d")
+    print(get_all_failed_questions("agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7"))

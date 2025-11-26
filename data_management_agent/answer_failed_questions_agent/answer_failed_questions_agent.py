@@ -1,4 +1,4 @@
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import AIMessage
 from langgraph.graph import StateGraph, START, END
 from data_management_agent.models import *
 from data_management_agent.data_management_agent_definitions import Agent
@@ -100,12 +100,8 @@ def ask_question(state: AgentState):
                 "messages": state["messages"] + [AIMessage(content="I didn't find a question with that ID. Please paste a valid question ID or ask for a random question.")]
             }
     
-    # Get remaining questions (excluding the one we're about to show)
-    remaining_questions = get_all_failed_questions(brand_agent_id)
-    remaining_questions = [q for q in remaining_questions if q["id"] != question["id"]]
-    remaining_text = format_questions_list(remaining_questions, limit=5)
-    
     # Show the question, list remaining, and ask for answer
+    print("this is the id",question["id"])
     message = f"Here's the question:\n\n{question['question']}\n\n"
     
     message += "Please provide your answer to the question above."
@@ -126,6 +122,8 @@ def handle_answer(state: AgentState):
     current_question_id = state["answer_failed_questions_agent_state"]["current_question_id"]
     current_question = state["answer_failed_questions_agent_state"]["current_question"]
     asi_one_id = state["asi_one_id"]
+    print("this is the asi one id", asi_one_id)
+    print("this is the current question id", current_question_id)
     brand_agent_id = get_brand_agent_id_from_asi_one_id(asi_one_id)
     
     if not current_question_id or not current_question:

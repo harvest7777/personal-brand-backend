@@ -39,7 +39,6 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
         ChatAcknowledgement(timestamp=datetime.now(), acknowledged_msg_id=msg.msg_id),
     )
 
-    ctx.logger.info(f"Received message from {sender}: {msg.content}")
     # region Simple parsing input and getting chat metadata
     chat_id = get_chat_id_from_message(msg)
     human_input = get_human_input_from_message(msg)

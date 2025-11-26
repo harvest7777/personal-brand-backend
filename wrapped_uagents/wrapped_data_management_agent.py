@@ -60,14 +60,12 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     if current_state is None:
         current_state = initialize_agent_state(asi_one_id)
-        ctx.logger.info(f"initialized state: {current_state}")
 
     append_message_to_state(current_state, human_input)
 
     next_state = graph.invoke(current_state) # This will return a dict, NOT a state object
 
     json_result = dumps(next_state) # Has to be json to store in agent db
-    print(f"json state: {json_result}")
     ctx.storage.set(chat_id, json_result) # Save the new state to the DB
     # endregion
 
