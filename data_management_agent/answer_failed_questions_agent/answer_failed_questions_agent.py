@@ -122,8 +122,7 @@ def handle_answer(state: AgentState):
     current_question_id = state["answer_failed_questions_agent_state"]["current_question_id"]
     current_question = state["answer_failed_questions_agent_state"]["current_question"]
     asi_one_id = state["asi_one_id"]
-    print("this is the asi one id", asi_one_id)
-    print("this is the current question id", current_question_id)
+
     brand_agent_id = get_brand_agent_id_from_asi_one_id(asi_one_id)
     
     if not current_question_id or not current_question:

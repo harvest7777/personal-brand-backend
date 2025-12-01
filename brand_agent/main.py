@@ -14,7 +14,6 @@ def intent_router(state: BrandAgentState):
         return {"current_agent": "END", "current_step": "", "messages": [AIMessage(content="Gotcha, goodbye!")]}
 
     # Continuing where we left off, user is already working with an agent and is in some step
-    print(f"Current agent: {state['current_agent']}")
     if "current_agent" in state and state["current_agent"] in [agent.value for agent in Agent]:
         return {"current_agent": state["current_agent"]}
 
@@ -74,8 +73,8 @@ def build_main_graph():
 
 if __name__ == "__main__":
     graph = build_main_graph()
-    new_state: BrandAgentState = initialize_agent_state("user123", "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7")
-    new_state["messages"] = [HumanMessage(content="can ryan code?")]
+    new_state: BrandAgentState = initialize_agent_state("agent1qdnhwqv3ekrzcuk597nrzc8xh9eyurlwvsrzzrytr6cl87zuwfuayh4xq6g", "agent1qgerajmgluncfslmdmrgxww463ntt4c90slr0srq4lcc9vmyyavkyg2tzh7")
+    new_state["messages"] = [HumanMessage(content="does he work at home depot?")]
     result = graph.invoke(new_state)
     print(result["messages"][-1].content)
 

@@ -25,15 +25,16 @@ def answer_question(state: BrandAgentState):
     brand_agent_id = state["brand_agent_id"]
     asi_one_id = get_asi_one_id_from_brand_agent_id(brand_agent_id)
 
+    print("this is the asi one id", asi_one_id)
     human_input = str(state["messages"][-1].content)
     facts = get_most_relevant_facts(asi_one_id, human_input, 3)
+    print("facts", facts)
     
     # If no facts, store the question and return early with a message
     if not facts:
         # Check if a similar question already exists in failed questions collection
         if not similar_question_exists(human_input, brand_agent_id):
             # Only add if a similar question doesn't exist
-            print(f"Inserting question {human_input} into failed questions collection")
             insert_question(asi_one_id, human_input, brand_agent_id)
         
         # Hardcoded response when we don't have enough information

@@ -6,7 +6,7 @@ class Agent(Enum):
     FALLBACK = "fallback_agent"
 
 AGENT_DESCRIPTIONS = {
-    Agent.QUESTION_ANSWERER: "Answers questions on behalf of a user's personal brand.",
+    Agent.QUESTION_ANSWERER: "Answers questions on behalf of a user's personal brand. Use this whenever you receive a question that can be answered on behalf of a user. For example, asking where they work or what they do.",
     Agent.AUDIENCE_ONBOARDER: "Onboards a user as an audience member.",
-    Agent.FALLBACK: "Handles unclear, ambiguous, or unsupported user intents.",
+    Agent.FALLBACK: "Handles unsupported user intents.",
 }
