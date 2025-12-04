@@ -37,6 +37,14 @@ pip install -r requirements.txt
    - Database URL
    - Studio URL (for the Supabase dashboard)
 
+### 3. Starting Chroma
+
+Chroma is the vector database used for semantically searching data. Start Chroma locally from the root of the project:
+
+```bash
+chroma run --path ./chroma
+```
+
 ## Running Agents
 
 You can start the agents using Python module syntax:
@@ -48,3 +56,7 @@ python -m wrapped_uagents.wrapped_data_management_agent
 # Start the brand agent
 python -m wrapped_uagents.wrapped_brand_agent
 ```
+
+## Interacting with Agents
+
+Once your agents are running, you can interact with them via [asi:one](https://asi1.ai/chat). Simply @ mention your agent's ID in the chat to start a conversation with them. The agent ID will be displayed when you start the agent.
