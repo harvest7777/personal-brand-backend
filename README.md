@@ -1,10 +1,28 @@
-# Getting Started with Supabase
+# Getting Started
 
 ## Prerequisites
 
-You'll need the Supabase CLI installed. If you don't have it yet, follow the [installation guide](https://supabase.com/docs/guides/cli/getting-started).
+- **Supabase CLI**: You'll need the Supabase CLI installed. If you don't have it yet, follow the [installation guide](https://supabase.com/docs/guides/cli/getting-started).
+- **Python**: Make sure you have Python installed.
 
-## Starting Supabase
+## Setup
+
+### 1. Python Environment
+
+Create a virtual environment and activate it:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Starting Supabase
 
 1. Start the local Supabase instance:
 
@@ -19,4 +37,14 @@ You'll need the Supabase CLI installed. If you don't have it yet, follow the [in
    - Database URL
    - Studio URL (for the Supabase dashboard)
 
-That's it! Your local Supabase instance is ready to use.
+## Running Agents
+
+You can start the agents using Python module syntax:
+
+```bash
+# Start the data management agent
+python -m wrapped_uagents.wrapped_data_management_agent
+
+# Start the brand agent
+python -m wrapped_uagents.wrapped_brand_agent
+```
