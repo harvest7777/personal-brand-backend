@@ -20,7 +20,10 @@ COPY utils/ ./utils/
 COPY shared_clients/ ./shared_clients/
 COPY database/ ./database/
 COPY wrapped_uagents/ ./wrapped_uagents/
+COPY brand_agent/ ./brand_agent/
 COPY chroma/ ./chroma/
+COPY entrypoint.sh /app/entrypoint.sh
+
 
 # Expose the port the agent runs on
 EXPOSE 8001
@@ -28,6 +31,5 @@ EXPOSE 8001
 # Set environment variable for Python path
 ENV PYTHONPATH=/app
 
-# Run the wrapped data management agent
-CMD ["python", "-m", "wrapped_uagents.wrapped_data_management_agent"]
-
+# Run the wrapped data management agent services
+ENTRYPOINT ["/app/entrypoint.sh"]
