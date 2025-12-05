@@ -26,7 +26,7 @@ COPY entrypoint.sh /app/entrypoint.sh
 
 
 # Expose the port the agent runs on
-EXPOSE 8001
+EXPOSE 8080
 
 # Set environment variable for Python path
 ENV PYTHONPATH=/app

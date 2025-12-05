@@ -12,6 +12,7 @@ import os
 from dotenv import load_dotenv
 from uagents import Context, Protocol, Agent
 from shared_clients.composio_client import *
+from uagents import Model
 from uagents_core.contrib.protocols.chat import (
     ChatAcknowledgement,
     ChatMessage,
@@ -24,7 +25,7 @@ graph = build_main_graph()
 agent = Agent(
     name="Personal Brand Orchestrator",
     seed=os.getenv("AGENT_SEED"),
-    port=8001,
+    port=8080,
     mailbox=True,
 )
 
@@ -34,6 +35,7 @@ protocol = Protocol(spec=chat_protocol_spec)
 
 @protocol.on_message(ChatMessage)
 async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
+    ctx.logger.info(msg)
     await ctx.send(
         sender,
         ChatAcknowledgement(timestamp=datetime.now(), acknowledged_msg_id=msg.msg_id),
@@ -87,6 +89,14 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     # endregion
 
+class Response(Model):
+    text: str
+@agent.on_rest_get("/", Response)
+async def handle_get(ctx: Context):
+    ctx.logger.info("Received GET request")
+    return {
+        "text": "Hello from the GET handler!",
+    }
 # need to define req and respo
 @protocol.on_message(ChatAcknowledgement)
 async def handle_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
